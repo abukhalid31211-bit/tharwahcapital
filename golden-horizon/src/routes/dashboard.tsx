@@ -49,7 +49,7 @@ function Dashboard() {
             <span className="font-black text-white">ر</span>
           </div>
           <div>
-            <div className="font-black text-foreground text-sm">الراسخون كابيتال</div>
+            <div className="font-black text-foreground text-sm">الثروة كابيتال كابيتال</div>
             <div className="text-[10px] text-gold">بوابة العملاء</div>
           </div>
           <button onClick={() => setSideOpen(false)} className="lg:hidden mr-auto text-text-muted">

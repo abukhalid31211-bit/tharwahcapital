@@ -16,7 +16,7 @@ export function WhyChooseUs() {
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="inline-block text-xs font-black tracking-[0.3em] text-gold uppercase">لماذا نحن</span>
           <h2 className="mt-4 text-4xl md:text-5xl font-black text-text-light">
-            لماذا تختار <span className="text-gradient-gold">الراسخون كابيتال</span>
+            لماذا تختار <span className="text-gradient-gold">الثروة كابيتال كابيتال</span>
           </h2>
           <p className="mt-5 text-text-muted text-lg">قيمنا التي بنيناها على مدار سنوات من الثقة والاحترافية.</p>
         </div>

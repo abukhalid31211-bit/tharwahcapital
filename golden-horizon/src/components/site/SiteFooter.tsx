@@ -12,7 +12,7 @@ export function SiteFooter() {
               <span className="font-black text-white text-lg">ر</span>
             </div>
             <div className="leading-tight">
-              <div className="font-black text-foreground">الراسخون كابيتال</div>
+              <div className="font-black text-foreground">الثروة كابيتال كابيتال</div>
               <div className="text-[10px] tracking-widest text-gold uppercase">Rasekhoon Capital</div>
             </div>
           </div>
@@ -123,7 +123,7 @@ export function SiteFooter() {
 
       <div className="border-t border-border">
         <div className="mx-auto max-w-7xl px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-text-muted">
-          <p>© {new Date().getFullYear()} الراسخون كابيتال. جميع الحقوق محفوظة.</p>
+          <p>© {new Date().getFullYear()} الثروة كابيتال كابيتال. جميع الحقوق محفوظة.</p>
           <div className="flex items-center gap-5">
             <a href="#" className="hover:text-gold transition-colors">سياسة الخصوصية</a>
             <a href="#" className="hover:text-gold transition-colors">الشروط والأحكام</a>

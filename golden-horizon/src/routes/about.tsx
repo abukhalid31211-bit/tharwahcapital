@@ -39,7 +39,7 @@ function About() {
             نصنع مستقبلك <span className="text-gradient-gold">المالي</span> منذ 2010
           </h1>
           <p className="mt-6 max-w-2xl mx-auto text-lg text-text-muted leading-relaxed">
-            الراسخون كابيتال — شركة استثمارية رائدة تجمع الخبرة المحلية مع الوصول العالمي لأسواق المال.
+            الثروة كابيتال كابيتال — شركة استثمارية رائدة تجمع الخبرة المحلية مع الوصول العالمي لأسواق المال.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-10">
             {[{ icon: TrendingUp, v: "$2B+", l: "أصول مدارة" }, { icon: Users, v: "5,000+", l: "عميل موثوق" }, { icon: Star, v: "98.5%", l: "نسبة رضا" }, { icon: Globe, v: "15+", l: "سوق عالمي" }].map(({ icon: Icon, v, l }) => (

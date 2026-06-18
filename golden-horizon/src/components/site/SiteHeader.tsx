@@ -100,7 +100,7 @@ export function SiteHeader() {
             <span className="font-black text-white text-lg">ر</span>
           </div>
           <div className="leading-tight">
-            <div className="font-black text-foreground text-base">الراسخون كابيتال</div>
+            <div className="font-black text-foreground text-base">الثروة كابيتال كابيتال</div>
             <div className="text-[10px] tracking-widest text-gold uppercase">Rasekhoon Capital</div>
           </div>
         </Link>

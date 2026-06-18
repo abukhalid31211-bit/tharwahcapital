@@ -30,7 +30,7 @@ function Login() {
             <span className="font-black text-white text-2xl">ر</span>
           </div>
           <h1 className="text-2xl font-black text-foreground">بوابة العملاء</h1>
-          <p className="mt-1 text-text-muted text-sm">الراسخون كابيتال — منصة الاستثمار الذكية</p>
+          <p className="mt-1 text-text-muted text-sm">الثروة كابيتال كابيتال — منصة الاستثمار الذكية</p>
         </div>
 
         {/* Card */}
