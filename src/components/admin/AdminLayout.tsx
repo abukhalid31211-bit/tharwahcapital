@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Bell, LogOut, Settings, Menu, X, Search, ChevronRight, TrendingUp, Users, FileText, MessageSquare, BarChart2, Shield, Home, Briefcase, CreditCard, Bell as BellIcon, UserCheck, Lock } from 'lucide-react'
+import { Bell, LogOut, Settings, Menu, X, Search, ChevronRight, TrendingUp, Users, FileText, MessageSquare, BarChart2, Shield, Home, Briefcase, CreditCard, Bell as BellIcon, UserCheck, Lock, Layout, HelpCircle, Star, Palette, Info, Globe, Ticket } from 'lucide-react'
 import Overview from './pages/Overview'
 import Clients from './pages/Clients'
 import Portfolios from './pages/Portfolios'
@@ -11,9 +11,16 @@ import Team from './pages/Team'
 import Notifications from './pages/Notifications'
 import SettingsPage from './pages/Settings'
 import Security from './pages/Security'
+import HeroManager from './pages/HeroManager'
+import ServicesManager from './pages/ServicesManager'
+import MarketsManager from './pages/MarketsManager'
+import FAQManager from './pages/FAQManager'
+import TestimonialsManager from './pages/TestimonialsManager'
+import SiteDesign from './pages/SiteDesign'
+import AboutManager from './pages/AboutManager'
 import { mockNotifications } from './adminData'
 
-type Page = 'overview'|'clients'|'portfolios'|'transactions'|'messages'|'content'|'reports'|'team'|'notifications'|'settings'|'security'
+type Page = 'overview'|'clients'|'portfolios'|'transactions'|'messages'|'content'|'reports'|'team'|'notifications'|'settings'|'security'|'hero'|'services_mgr'|'markets_mgr'|'faq_mgr'|'testimonials'|'site_design'|'about_mgr'
 
 interface Props { onLogout: () => void }
 
@@ -32,6 +39,15 @@ const navGroups = [
     { key: 'reports', Icon: BarChart2, label: 'التقارير' },
     { key: 'team', Icon: UserCheck, label: 'الفريق' },
   ]},
+  { title: 'إدارة الموقع', items: [
+    { key: 'hero', Icon: Layout, label: 'قسم البطل' },
+    { key: 'services_mgr', Icon: Ticket, label: 'الخدمات' },
+    { key: 'markets_mgr', Icon: TrendingUp, label: 'الأسواق' },
+    { key: 'faq_mgr', Icon: HelpCircle, label: 'الأسئلة الشائعة' },
+    { key: 'testimonials', Icon: Star, label: 'الشهادات' },
+    { key: 'about_mgr', Icon: Info, label: 'من نحن' },
+    { key: 'site_design', Icon: Palette, label: 'التصميم والتنقل' },
+  ]},
   { title: 'النظام', items: [
     { key: 'notifications', Icon: BellIcon, label: 'الإشعارات', badge: mockNotifications.filter(n=>!n.read).length },
     { key: 'settings', Icon: Settings, label: 'الإعدادات' },
@@ -44,6 +60,9 @@ const pageTitles: Record<Page,string> = {
   transactions:'العمليات',messages:'الرسائل',content:'المحتوى',
   reports:'التقارير',team:'الفريق',notifications:'الإشعارات',
   settings:'الإعدادات',security:'الأمان',
+  hero:'قسم البطل',services_mgr:'إدارة الخدمات',markets_mgr:'إدارة الأسواق',
+  faq_mgr:'الأسئلة الشائعة',testimonials:'الشهادات',
+  site_design:'التصميم والتنقل',about_mgr:'صفحة من نحن',
 }
 
 export default function AdminLayout({ onLogout }: Props) {
@@ -67,6 +86,13 @@ export default function AdminLayout({ onLogout }: Props) {
       case 'notifications': return <Notifications />
       case 'settings': return <SettingsPage />
       case 'security': return <Security />
+      case 'hero': return <HeroManager />
+      case 'services_mgr': return <ServicesManager />
+      case 'markets_mgr': return <MarketsManager />
+      case 'faq_mgr': return <FAQManager />
+      case 'testimonials': return <TestimonialsManager />
+      case 'site_design': return <SiteDesign />
+      case 'about_mgr': return <AboutManager />
       default: return <Overview />
     }
   }
@@ -138,11 +164,11 @@ export default function AdminLayout({ onLogout }: Props) {
                     <Icon size={16} style={{ flexShrink:0 }} />
                     {!collapsed && <>
                       <span style={{ flex:1, whiteSpace:'nowrap' }}>{item.label}</span>
-                      {(item as any).badge > 0 && (
-                        <span style={{ background:'#FF4560', color:'white', borderRadius:10, padding:'1px 6px', fontSize:'0.6rem', fontWeight:700 }}>{(item as any).badge}</span>
+                      {(item as {badge?:number}).badge! > 0 && (
+                        <span style={{ background:'#FF4560', color:'white', borderRadius:10, padding:'1px 6px', fontSize:'0.6rem', fontWeight:700 }}>{(item as {badge?:number}).badge}</span>
                       )}
                     </>}
-                    {collapsed && (item as any).badge > 0 && (
+                    {collapsed && (item as {badge?:number}).badge! > 0 && (
                       <span style={{ position:'absolute', top:4, right:8, width:6, height:6, background:'#FF4560', borderRadius:'50%' }} />
                     )}
                   </button>
@@ -200,12 +226,10 @@ export default function AdminLayout({ onLogout }: Props) {
           </div>
 
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            {/* Live indicator */}
             <div style={{ display:'flex', alignItems:'center', gap:5, padding:'5px 10px', background:'rgba(0,217,126,0.08)', border:'1px solid rgba(0,217,126,0.2)', borderRadius:6, fontSize:'0.7rem', color:'#00D97E' }}>
               <span style={{ width:6, height:6, borderRadius:'50%', background:'#00D97E', display:'inline-block', animation:'blink 1.5s infinite' }} />
               مباشر
             </div>
-            {/* Notif */}
             <div style={{ position:'relative' }}>
               <button onClick={()=>setShowNotif(!showNotif)} style={{ width:36, height:36, background: showNotif ? 'rgba(201,168,76,0.1)' : '#060E1A', border:`1px solid ${showNotif ? 'rgba(201,168,76,0.3)' : '#1A2E4A'}`, borderRadius:8, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#6B84A8', position:'relative' }}>
                 <Bell size={15} />
