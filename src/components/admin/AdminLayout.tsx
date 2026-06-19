@@ -233,7 +233,7 @@ export default function AdminLayout({ onLogout }: Props) {
             <div style={{ position:'relative' }}>
               <button onClick={()=>setShowNotif(!showNotif)} style={{ width:36, height:36, background: showNotif ? 'rgba(14,165,233,0.1)' : '#F1F5F9', border:`1px solid ${showNotif ? 'rgba(14,165,233,0.3)' : '#E2E8F0'}`, borderRadius:8, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'#64748B', position:'relative' }}>
                 <Bell size={15} />
-                {unread > 0 && <span style={{ position:'absolute', top:5, left:5, width:7, height:7, background:'#FF4560', border:'2px solid #0A1628', borderRadius:'50%' }} />}
+                {unread > 0 && <span style={{ position:'absolute', top:5, left:5, width:7, height:7, background:'#FF4560', border:'2px solid #FFFFFF', borderRadius:'50%' }} />}
               </button>
               {showNotif && (
                 <div style={{ position:'absolute', top:'100%', left:0, marginTop:8, width:320, background:'#FFFFFF', border:'1px solid #E2E8F0', borderRadius:12, boxShadow:'0 8px 30px rgba(0,0,0,0.12)', zIndex:200, overflow:'hidden' }}>

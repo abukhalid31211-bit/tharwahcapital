@@ -68,10 +68,10 @@ export default function Messages() {
                 onMouseLeave={e=>{if(activeConv.id!==c.id)e.currentTarget.style.background='transparent'}}>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
                   <div style={{position:'relative',flexShrink:0}}>
-                    <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,#E2E8F0,#0A1628)',border:'1px solid #E2E8F0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',fontWeight:700,color:'#0EA5E9'}}>
+                    <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,#BAE6FD,#7DD3FC)',border:'1px solid #E2E8F0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',fontWeight:700,color:'#0EA5E9'}}>
                       {c.client.charAt(0)}
                     </div>
-                    {c.online && <div style={{position:'absolute',bottom:0,right:0,width:8,height:8,borderRadius:'50%',background:'#00D97E',border:'2px solid #0C1A2E'}}/>}
+                    {c.online && <div style={{position:'absolute',bottom:0,right:0,width:8,height:8,borderRadius:'50%',background:'#00D97E',border:'2px solid #FFFFFF'}}/>}
                   </div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
@@ -96,7 +96,7 @@ export default function Messages() {
             <div style={{display:'flex',alignItems:'center',gap:10}}>
               <div style={{position:'relative'}}>
                 <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,#0EA5E9,#38BDF8)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.85rem',fontWeight:700,color:'#FFFFFF'}}>{activeConv.client.charAt(0)}</div>
-                {activeConv.online && <div style={{position:'absolute',bottom:0,right:0,width:8,height:8,borderRadius:'50%',background:'#00D97E',border:'2px solid #0C1A2E'}}/>}
+                {activeConv.online && <div style={{position:'absolute',bottom:0,right:0,width:8,height:8,borderRadius:'50%',background:'#00D97E',border:'2px solid #FFFFFF'}}/>}
               </div>
               <div>
                 <div style={{fontSize:'0.85rem',fontWeight:700,color:'#1E293B'}}>{activeConv.client}</div>
@@ -115,7 +115,7 @@ export default function Messages() {
               <div key={m.id} style={{display:'flex',justifyContent: m.from==='admin' ? 'flex-start' : 'flex-end'}}>
                 <div style={{maxWidth:'70%',padding:'10px 14px',borderRadius: m.from==='admin' ? '4px 14px 14px 14px' : '14px 4px 14px 14px',background: m.from==='admin' ? 'linear-gradient(135deg,#0EA5E9,#38BDF8)' : '#FFFFFF',color: m.from==='admin' ? '#F1F5F9' : '#1E293B',fontSize:'0.82rem',lineHeight:1.5}}>
                   {m.text}
-                  <div style={{fontSize:'0.6rem',color: m.from==='admin' ? 'rgba(6,14,26,0.6)' : "#94A3B8"',marginTop:4,textAlign:'left'}}>{m.time}</div>
+                  <div style={{fontSize:'0.6rem',color: m.from==='admin' ? 'rgba(255,255,255,0.75)' : '#94A3B8',marginTop:4,textAlign:'left'}}>{m.time}</div>
                 </div>
               </div>
             ))}
@@ -131,7 +131,7 @@ export default function Messages() {
               onFocus={e=>e.target.style.borderColor='#0EA5E9'}
               onBlur={e=>e.target.style.borderColor='#E2E8F0'}/>
             <button onClick={sendMsg} style={{width:34,height:34,background:'linear-gradient(135deg,#0EA5E9,#38BDF8)',border:'none',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',flexShrink:0}}>
-              <Send size={14} color="#060E1A"/>
+              <Send size={14} color="#FFFFFF"/>
             </button>
           </div>
         </div>

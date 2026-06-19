@@ -42,7 +42,7 @@ export default function AdminLogin({ onLogin }: Props) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #050D1A 0%, #0A1628 50%, #0D2144 100%)',
+      background: 'linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 50%, #EFF6FF 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -54,23 +54,22 @@ export default function AdminLogin({ onLogin }: Props) {
       {/* Grid pattern */}
       <div style={{
         position: 'absolute', inset: 0,
-        backgroundImage: 'linear-gradient(rgba(14,165,233,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.03) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(rgba(14,165,233,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.06) 1px, transparent 1px)',
         backgroundSize: '40px 40px',
       }} />
 
       {/* Glow orbs */}
-      <div style={{ position: 'absolute', top: '20%', right: '15%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '20%', left: '15%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '20%', right: '15%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '20%', left: '15%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{
-        background: 'rgba(13, 33, 68, 0.92)',
-        backdropFilter: 'blur(24px)',
-        border: '1px solid rgba(14,165,233,0.2)',
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
         borderRadius: 24,
         padding: '48px 40px',
         width: 440,
         position: 'relative',
-        boxShadow: '0 0 0 1px rgba(14,165,233,0.08), 0 32px 80px rgba(0,0,0,0.6)',
+        boxShadow: '0 4px 32px rgba(14,165,233,0.12), 0 1px 4px rgba(0,0,0,0.06)',
         animation: shake ? 'adminShake 0.5s ease' : undefined,
         zIndex: 10,
       }}>
@@ -102,7 +101,7 @@ export default function AdminLogin({ onLogin }: Props) {
                 required
                 style={{
                   width: '100%', padding: '12px 44px 12px 14px',
-                  background: 'rgba(6,14,26,0.8)', border: '1px solid #E2E8F0',
+                  background: '#F1F5F9', border: '1px solid #E2E8F0',
                   borderRadius: 10, color: '#1E293B', fontSize: '0.875rem',
                   fontFamily: "'Cairo', sans-serif", outline: 'none', boxSizing: 'border-box',
                   transition: 'border-color 0.2s',
@@ -128,7 +127,7 @@ export default function AdminLogin({ onLogin }: Props) {
                 required
                 style={{
                   width: '100%', padding: '12px 44px 12px 44px',
-                  background: 'rgba(6,14,26,0.8)', border: '1px solid #E2E8F0',
+                  background: '#F1F5F9', border: '1px solid #E2E8F0',
                   borderRadius: 10, color: '#1E293B', fontSize: '0.875rem',
                   fontFamily: "'Cairo', sans-serif", outline: 'none', boxSizing: 'border-box',
                 }}
@@ -155,7 +154,7 @@ export default function AdminLogin({ onLogin }: Props) {
             disabled={loading || locked}
             style={{
               width: '100%', padding: 16,
-              background: loading || locked ? 'rgba(14,165,233,0.3)' : 'linear-gradient(135deg, #C9A84C, #E8C96A)',
+              background: loading || locked ? 'rgba(14,165,233,0.3)' : 'linear-gradient(135deg, #0EA5E9, #38BDF8)',
               color: '#FFFFFF', border: 'none', borderRadius: 12,
               fontSize: '1rem', fontWeight: 800, fontFamily: "'Cairo', sans-serif",
               cursor: loading || locked ? 'not-allowed' : 'pointer',

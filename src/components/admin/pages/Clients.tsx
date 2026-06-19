@@ -164,7 +164,7 @@ export default function Clients() {
                   <td style={C.td}><input type="checkbox" checked={selected.includes(c.id)} onChange={()=>toggleSelect(c.id)} style={{cursor:'pointer'}}/></td>
                   <td style={C.td}>
                     <div style={{display:'flex',alignItems:'center',gap:10}}>
-                      <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#E2E8F0,#0A1628)',border:'1px solid #E2E8F0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.8rem',fontWeight:700,color:'#0EA5E9',flexShrink:0}}>
+                      <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#BAE6FD,#7DD3FC)',border:'1px solid #E2E8F0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.8rem',fontWeight:700,color:'#0EA5E9',flexShrink:0}}>
                         {c.name.charAt(0)}
                       </div>
                       <div>
@@ -213,7 +213,7 @@ export default function Clients() {
 
       {/* View Modal */}
       {viewClient && (
-        <div style={{position:'fixed',inset:0,background:'rgba(6,14,26,0.8)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}} onClick={()=>setViewClient(null)}>
+        <div style={{position:'fixed',inset:0,background:'rgba(100,116,139,0.4)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}} onClick={()=>setViewClient(null)}>
           <div style={{background:'#FFFFFF',border:'1px solid #E2E8F0',borderRadius:16,width:560,maxHeight:'80vh',overflow:'auto'}} onClick={e=>e.stopPropagation()}>
             <div style={{padding:'16px 20px',borderBottom:'1px solid #E2E8F0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
               <div style={{fontSize:'0.9rem',fontWeight:700,color:'#1E293B'}}>ملف العميل</div>

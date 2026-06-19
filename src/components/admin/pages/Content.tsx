@@ -140,7 +140,7 @@ export default function Content() {
 
       {/* Editor Modal */}
       {showEditor && (
-        <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,0.55)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:20}} onClick={()=>setShowEditor(false)}>
+        <div style={{position:'fixed',inset:0,background:'rgba(100,116,139,0.35)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:20}} onClick={()=>setShowEditor(false)}>
           <div style={{background:'#FFFFFF',border:'1px solid #E2E8F0',borderRadius:16,width:'100%',maxWidth:720,maxHeight:'90vh',overflow:'auto'}} onClick={e=>e.stopPropagation()}>
             <div style={{padding:'16px 20px',borderBottom:'1px solid #E2E8F0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
               <span style={{fontWeight:700,color:'#1E293B'}}>محرر المقالات</span>
