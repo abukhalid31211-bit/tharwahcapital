@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AkadminRouteImport } from './routes/Akadmin'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as NewsRouteImport } from './routes/news'
@@ -22,6 +23,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServiceIdRouteImport } from './routes/service.$id'
 import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
 
+const AkadminRoute = AkadminRouteImport.update({
+  id: '/Akadmin',
+  path: '/Akadmin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -86,6 +92,7 @@ const ArticleSlugRoute = ArticleSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/Akadmin': typeof AkadminRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/Akadmin': typeof AkadminRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/Akadmin': typeof AkadminRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/Akadmin'
     | '/contact'
     | '/dashboard'
     | '/faq'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/Akadmin'
     | '/contact'
     | '/dashboard'
     | '/faq'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/Akadmin'
     | '/contact'
     | '/dashboard'
     | '/faq'
@@ -174,6 +186,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AkadminRoute: typeof AkadminRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   FaqRoute: typeof FaqRoute
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/Akadmin': {
+      id: '/Akadmin'
+      path: '/Akadmin'
+      fullPath: '/Akadmin'
+      preLoaderRoute: typeof AkadminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -278,6 +298,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AkadminRoute: AkadminRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   FaqRoute: FaqRoute,
