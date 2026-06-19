@@ -1,0 +1,15 @@
+artifacts/
+lib/
+scripts/
+src/
+attached_assets/
+.replit
+.replitignore
+.npmrc
+pnpm-workspace.yaml
+pnpm-lock.yaml
+replit.md
+tsconfig.base.json
+tsconfig.json
+.agents/
+.local/
