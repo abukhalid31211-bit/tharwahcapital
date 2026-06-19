@@ -1,7 +1,4 @@
 {
-  "installCommand": "cd golden-horizon && bun install",
-  "buildCommand": "cd golden-horizon && bun run build",
-  "outputDirectory": "golden-horizon/dist",
   "rewrites": [
     {
       "source": "/(.*)",
