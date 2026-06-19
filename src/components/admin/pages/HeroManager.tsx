@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { Save, Eye, RefreshCw } from 'lucide-react'
 import { mockHeroData, mockTrustBadges, mockSiteStats } from '../adminData'
 
-const S = {
-  bg:'#060E1A', card:'#0C1A2E', border:'#1A2E4A', gold:'#C9A84C',
-  text:'#E2E8F4', muted:'#6B84A8', green:'#00D97E', red:'#FF4560'
-}
+const S = { bg:'#F1F5F9',card:'#FFFFFF',border:'#E2E8F0',gold:'#0EA5E9',text:'#1E293B',muted:'#64748B',green:'#059669',red:'#EF4444' }
 
 function Field({label,value,onChange,type='text',rows=0}:{label:string;value:string;onChange:(v:string)=>void;type?:string;rows?:number}) {
   const base:React.CSSProperties = {width:'100%',padding:'9px 12px',background:S.bg,border:`1px solid ${S.border}`,borderRadius:8,color:S.text,fontSize:'0.82rem',fontFamily:"'Cairo',sans-serif",boxSizing:'border-box',outline:'none'}
@@ -25,7 +22,7 @@ function Field({label,value,onChange,type='text',rows=0}:{label:string;value:str
 }
 
 function Toggle({on,onChange}:{on:boolean;onChange:(v:boolean)=>void}) {
-  return <div onClick={()=>onChange(!on)} style={{width:38,height:20,borderRadius:20,background:on?S.gold:'#1A2E4A',position:'relative',cursor:'pointer',transition:'background 0.3s',flexShrink:0}}>
+  return <div onClick={()=>onChange(!on)} style={{width:38,height:20,borderRadius:20,background:on?S.gold:'#E2E8F0',position:'relative',cursor:'pointer',transition:'background 0.3s',flexShrink:0}}>
     <div style={{position:'absolute',top:2,left:on?'auto':2,right:on?2:'auto',width:16,height:16,borderRadius:'50%',background:'white',transition:'all 0.3s'}}/>
   </div>
 }
@@ -62,10 +59,10 @@ export default function HeroManager() {
           <p style={{fontSize:'0.78rem',color:S.muted,marginTop:3}}>Hero Section • شارات الثقة • الإحصائيات</p>
         </div>
         <div style={{display:'flex',gap:8}}>
-          <button style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',background:`rgba(59,130,246,0.1)`,border:`1px solid rgba(59,130,246,0.2)`,borderRadius:8,color:'#3B82F6',fontSize:'0.78rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>
-            <Eye size={13}/> معاينة
+          <button onClick={()=>window.open('/','_blank')} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',background:'rgba(14,165,233,0.1)',border:'1px solid rgba(14,165,233,0.3)',borderRadius:8,color:'#0EA5E9',fontSize:'0.78rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>
+            <Eye size={13}/> معاينة الصفحة
           </button>
-          <button onClick={save} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',background:saved?`rgba(0,217,126,0.15)`:`linear-gradient(135deg,${S.gold},#E8C96A)`,border:saved?`1px solid rgba(0,217,126,0.4)`:'none',borderRadius:8,color:saved?S.green:'#060E1A',fontWeight:700,fontSize:'0.82rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>
+          <button onClick={save} style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',background:saved?`rgba(0,217,126,0.15)`:`linear-gradient(135deg,${S.gold},#38BDF8)`,border:saved?`1px solid rgba(0,217,126,0.4)`:'none',borderRadius:8,color:saved?S.green:'#FFFFFF',fontWeight:700,fontSize:'0.82rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>
             {saved ? <><RefreshCw size={13}/> تم الحفظ</> : <><Save size={13}/> حفظ</>}
           </button>
         </div>
@@ -135,7 +132,7 @@ export default function HeroManager() {
               </div>
             ))}
             <button onClick={()=>setBadges([...badges,{id:Date.now(),icon:'🌟',text:'شارة جديدة',visible:true,order:badges.length+1}])}
-              style={{padding:'9px',background:`rgba(201,168,76,0.06)`,border:`1px dashed rgba(201,168,76,0.3)`,borderRadius:10,color:S.gold,fontSize:'0.78rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>
+              style={{padding:'9px',background:`rgba(14,165,233,0.06)`,border:`1px dashed rgba(14,165,233,0.3)`,borderRadius:10,color:S.gold,fontSize:'0.78rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>
               + إضافة شارة
             </button>
           </div>
