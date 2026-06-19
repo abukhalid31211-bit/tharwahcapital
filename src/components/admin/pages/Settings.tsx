@@ -1,197 +1,152 @@
 import { useState } from 'react'
 
+function Toggle({on,onChange}:{on:boolean;onChange:(v:boolean)=>void}) {
+  return <div onClick={()=>onChange(!on)} style={{width:40,height:22,borderRadius:22,background: on ? '#C9A84C' : '#1A2E4A',position:'relative',cursor:'pointer',transition:'background 0.3s',flexShrink:0}}>
+    <div style={{position:'absolute',top:3,left: on ? 'auto' : 3,right: on ? 3 : 'auto',width:16,height:16,borderRadius:'50%',background:'white',transition:'all 0.3s'}}/>
+  </div>
+}
+
+function Field({label,value,placeholder,type='text'}:{label:string;value:string;placeholder?:string;type?:string}) {
+  const [v,setV] = useState(value)
+  return (
+    <div>
+      <div style={{fontSize:'0.72rem',color:'#6B84A8',fontWeight:600,marginBottom:6}}>{label}</div>
+      <input type={type} value={v} onChange={e=>setV(e.target.value)} placeholder={placeholder} style={{width:'100%',padding:'10px 12px',background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:8,color:'#E2E8F4',fontSize:'0.82rem',fontFamily:"'Cairo',sans-serif",boxSizing:'border-box',outline:'none'}} onFocus={e=>e.target.style.borderColor='#C9A84C'} onBlur={e=>e.target.style.borderColor='#1A2E4A'}/>
+    </div>
+  )
+}
+
 const navItems = [
-  { key: 'general', icon: '🏢', label: 'عام' },
-  { key: 'appearance', icon: '🎨', label: 'المظهر' },
-  { key: 'email', icon: '📧', label: 'البريد' },
-  { key: 'security', icon: '🔒', label: 'الأمان' },
-  { key: 'notifications', icon: '🔔', label: 'الإشعارات' },
-  { key: 'financial', icon: '💰', label: 'المالية' },
-  { key: 'seo', icon: '🌐', label: 'SEO' },
-  { key: 'api', icon: '🔗', label: 'API' },
+  {k:'general',icon:'🏢',l:'عام'},
+  {k:'appearance',icon:'🎨',l:'المظهر'},
+  {k:'email',icon:'📧',l:'البريد'},
+  {k:'financial',icon:'💰',l:'المالية'},
+  {k:'notifications',icon:'🔔',l:'الإشعارات'},
+  {k:'seo',icon:'🌐',l:'SEO'},
+  {k:'api',icon:'🔗',l:'API والتكامل'},
+  {k:'backup',icon:'💾',l:'النسخ الاحتياطي'},
 ]
 
-function Toggle({ defaultChecked = false }: { defaultChecked?: boolean }) {
-  const [on, setOn] = useState(defaultChecked)
-  return (
-    <div onClick={() => setOn(!on)} style={{ width: 44, height: 24, borderRadius: 24, background: on ? '#C9A84C' : '#1A2E4A', position: 'relative', cursor: 'pointer', transition: 'background 0.3s', flexShrink: 0 }}>
-      <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'white', position: 'absolute', top: 3, right: on ? 3 : 23, transition: 'right 0.3s' }} />
-    </div>
-  )
-}
-
-function Section({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
-  return (
-    <div style={{ padding: 28, borderBottom: '1px solid #1A2E4A' }}>
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: '1rem', fontWeight: 700, color: '#E2E8F4' }}>{title}</div>
-        {desc && <div style={{ fontSize: '0.8rem', color: '#6B84A8', marginTop: 4 }}>{desc}</div>}
-      </div>
-      {children}
-    </div>
-  )
-}
-
-function ToggleRow({ label, desc, defaultChecked }: { label: string; desc?: string; defaultChecked?: boolean }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid rgba(26,46,74,0.5)' }}>
-      <div>
-        <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#E2E8F4' }}>{label}</div>
-        {desc && <div style={{ fontSize: '0.78rem', color: '#6B84A8', marginTop: 2 }}>{desc}</div>}
-      </div>
-      <Toggle defaultChecked={defaultChecked} />
-    </div>
-  )
-}
-
-function Input({ label, placeholder, type = 'text', defaultValue = '' }: { label: string; placeholder?: string; type?: string; defaultValue?: string }) {
-  return (
-    <div>
-      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#6B84A8', marginBottom: 6 }}>{label}</label>
-      <input type={type} placeholder={placeholder} defaultValue={defaultValue}
-        style={{ width: '100%', padding: '10px 14px', background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, color: '#E2E8F4', fontSize: '0.875rem', fontFamily: "'Cairo', sans-serif", outline: 'none', boxSizing: 'border-box' }}
-        onFocus={e => e.target.style.borderColor = '#C9A84C'}
-        onBlur={e => e.target.style.borderColor = '#1A2E4A'} />
-    </div>
-  )
-}
-
 export default function Settings() {
-  const [activeSection, setActiveSection] = useState('general')
+  const [activeNav, setActiveNav] = useState('general')
   const [saved, setSaved] = useState(false)
 
-  const handleSave = () => {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2500)
-  }
-
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'general':
-        return (
-          <>
-            <Section title="إعدادات الشركة" desc="المعلومات الأساسية للشركة">
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                <Input label="اسم الشركة *" defaultValue="الثروة كابيتال" />
-                <Input label="البريد الرسمي *" type="email" defaultValue="info@altharoa.com" />
-                <Input label="رقم الهاتف" defaultValue="+966 11 xxx xxxx" />
-                <Input label="المدينة" defaultValue="الرياض" />
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <Input label="العنوان" defaultValue="طريق الملك فهد، الرياض، المملكة العربية السعودية" />
-                </div>
-              </div>
-            </Section>
-            <Section title="شعار الموقع" desc="إدارة الشعارات المختلفة">
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                {['الشعار الرئيسي', 'الشعار الأبيض', 'Favicon'].map(l => (
-                  <div key={l} style={{ aspectRatio: '16/9', border: '2px dashed #1A2E4A', borderRadius: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer', transition: 'all 0.3s' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = '#C9A84C'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = '#1A2E4A'}>
-                    <div style={{ fontSize: '1.5rem' }}>🖼️</div>
-                    <div style={{ fontSize: '0.72rem', color: '#6B84A8' }}>{l}</div>
-                  </div>
-                ))}
-              </div>
-            </Section>
-            <Section title="روابط التواصل الاجتماعي">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {[['LinkedIn', 'https://linkedin.com/company/...'], ['Twitter/X', 'https://twitter.com/...'], ['WhatsApp', '+966 5x xxx xxxx']].map(([p, ph]) => (
-                  <Input key={p} label={p} placeholder={ph} />
-                ))}
-              </div>
-            </Section>
-          </>
-        )
-
-      case 'security':
-        return (
-          <Section title="إعدادات الأمان" desc="إدارة أمان المنصة">
-            <ToggleRow label="المصادقة الثنائية (2FA)" desc="طلب رمز إضافي عند تسجيل الدخول" defaultChecked />
-            <ToggleRow label="تسجيل محاولات الدخول الفاشلة" defaultChecked />
-            <ToggleRow label="إشعار بريد عند دخول جديد" defaultChecked />
-            <ToggleRow label="قفل الحساب بعد 5 محاولات فاشلة" defaultChecked />
-            <ToggleRow label="انتهاء الجلسة بعد 8 ساعات" defaultChecked />
-            <ToggleRow label="تتبع عناوين IP" defaultChecked />
-            <div style={{ marginTop: 20 }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#E2E8F4', marginBottom: 12 }}>مهلة انتهاء الجلسة (بالدقائق)</div>
-              <input type="number" defaultValue={480} style={{ width: 120, padding: '8px 12px', background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, color: '#E2E8F4', fontFamily: "'Cairo', sans-serif", outline: 'none' }} />
-            </div>
-          </Section>
-        )
-
-      case 'notifications':
-        return (
-          <Section title="إعدادات الإشعارات" desc="تحكم في أنواع الإشعارات التي تتلقاها">
-            <ToggleRow label="إشعارات تسجيل العملاء الجدد" defaultChecked />
-            <ToggleRow label="إشعارات الرسائل الجديدة" defaultChecked />
-            <ToggleRow label="إشعارات العمليات الكبيرة" defaultChecked />
-            <ToggleRow label="إشعارات انتهاء صلاحية التقارير" defaultChecked />
-            <ToggleRow label="إشعارات تسجيل الدخول المشبوه" defaultChecked />
-            <ToggleRow label="إشعارات البريد الإلكتروني" defaultChecked />
-            <ToggleRow label="إشعارات WhatsApp" />
-          </Section>
-        )
-
-      case 'financial':
-        return (
-          <Section title="الإعدادات المالية" desc="إعدادات العمليات المالية والعملات">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#6B84A8', marginBottom: 6 }}>العملة الرئيسية</label>
-                <select style={{ width: '100%', padding: '10px 14px', background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, color: '#E2E8F4', fontFamily: "'Cairo', sans-serif", outline: 'none' }}>
-                  {['USD — دولار أمريكي', 'SAR — ريال سعودي', 'AED — درهم إماراتي'].map(c => <option key={c}>{c}</option>)}
-                </select>
-              </div>
-              <Input label="الحد الأدنى للاستثمار ($)" defaultValue="1000" type="number" />
-              <Input label="رسوم الإدارة (%)" defaultValue="1.5" type="number" />
-              <Input label="رسوم الأداء (%)" defaultValue="20" type="number" />
-            </div>
-          </Section>
-        )
-
-      default:
-        return (
-          <div style={{ padding: 40, textAlign: 'center', color: '#6B84A8' }}>
-            <div style={{ fontSize: '2rem', marginBottom: 12 }}>⚙️</div>
-            <div>اختر قسماً من القائمة الجانبية</div>
-          </div>
-        )
-    }
-  }
+  const save = () => { setSaved(true); setTimeout(()=>setSaved(false),2000) }
 
   return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#E2E8F4' }}>الإعدادات العامة</h1>
+    <div style={{display:'flex',flexDirection:'column',gap:20}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div>
+          <h1 style={{fontSize:'1.4rem',fontWeight:800,color:'#E2E8F4',margin:0}}>إعدادات المنصة</h1>
+          <p style={{fontSize:'0.78rem',color:'#6B84A8',marginTop:3}}>تخصيص وإدارة منصة Golden Horizon</p>
+        </div>
+        <button onClick={save} style={{padding:'9px 20px',background: saved ? 'rgba(0,217,126,0.2)' : 'linear-gradient(135deg,#C9A84C,#E8C96A)',border: saved ? '1px solid rgba(0,217,126,0.4)' : 'none',borderRadius:8,color: saved ? '#00D97E' : '#060E1A',fontWeight:700,cursor:'pointer',fontFamily:"'Cairo',sans-serif",fontSize:'0.82rem',transition:'all 0.2s'}}>
+          {saved ? '✓ تم الحفظ' : '💾 حفظ التغييرات'}
+        </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 24, alignItems: 'start' }}>
-        {/* Settings Nav */}
-        <div style={{ background: '#0C1A2E', border: '1px solid #1A2E4A', borderRadius: 14, overflow: 'hidden', position: 'sticky', top: 84 }}>
-          {navItems.map(item => (
-            <button key={item.key} onClick={() => setActiveSection(item.key)}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: 'none', border: 'none', color: activeSection === item.key ? '#C9A84C' : '#6B84A8', fontSize: '0.875rem', fontWeight: activeSection === item.key ? 600 : 400, cursor: 'pointer', fontFamily: "'Cairo', sans-serif", transition: 'all 0.2s', textAlign: 'right', borderRight: activeSection === item.key ? '2px solid #C9A84C' : '2px solid transparent', background: activeSection === item.key ? 'rgba(201,168,76,0.08)' : 'transparent' }}>
-              <span>{item.icon}</span> {item.label}
+      <div style={{display:'grid',gridTemplateColumns:'200px 1fr',gap:20,alignItems:'start'}}>
+        {/* Sidebar Nav */}
+        <div style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:14,overflow:'hidden'}}>
+          {navItems.map((item,i)=>(
+            <button key={item.k} onClick={()=>setActiveNav(item.k)} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'11px 14px',background: activeNav===item.k ? 'rgba(201,168,76,0.08)' : 'transparent',border:'none',borderRight: activeNav===item.k ? '2px solid #C9A84C' : '2px solid transparent',borderLeft:'none',color: activeNav===item.k ? '#C9A84C' : '#7A9AB8',fontSize:'0.82rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif",textAlign:'right',transition:'all 0.15s',borderBottom: i<navItems.length-1 ? '1px solid rgba(26,46,74,0.3)' : 'none'}}
+              onMouseEnter={e=>{if(activeNav!==item.k)e.currentTarget.style.background='rgba(201,168,76,0.04)'}}
+              onMouseLeave={e=>{if(activeNav!==item.k)e.currentTarget.style.background='transparent'}}>
+              <span style={{fontSize:'1rem'}}>{item.icon}</span>
+              <span>{item.l}</span>
             </button>
           ))}
         </div>
 
         {/* Content */}
-        <div style={{ background: '#0C1A2E', border: '1px solid #1A2E4A', borderRadius: 16, overflow: 'hidden' }}>
-          {renderContent()}
-
-          {/* Save Bar */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '20px 28px', background: '#060E1A', borderTop: '1px solid #1A2E4A' }}>
-            <button onClick={handleSave} style={{ padding: '10px 28px', background: 'linear-gradient(135deg, #C9A84C, #E8C96A)', color: '#060E1A', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', fontFamily: "'Cairo', sans-serif", transition: 'all 0.3s' }}>
-              احفظ التغييرات
-            </button>
-            <button style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #1A2E4A', borderRadius: 8, color: '#6B84A8', cursor: 'pointer', fontFamily: "'Cairo', sans-serif" }}>إلغاء</button>
-            {saved && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#00D97E', fontSize: '0.85rem', animation: 'fadeIn 0.3s ease' }}>
-                ✅ تم الحفظ بنجاح
+        <div style={{display:'flex',flexDirection:'column',gap:16}}>
+          {activeNav==='general' && (
+            <>
+              <div style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:14,padding:20}}>
+                <div style={{fontSize:'0.875rem',fontWeight:700,color:'#E2E8F4',marginBottom:16}}>🏢 معلومات المنصة</div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+                  <Field label="اسم المنصة" value="Golden Horizon Investments"/>
+                  <Field label="البريد الرسمي" value="info@goldenhorizon.com"/>
+                  <Field label="رقم الهاتف" value="+966 11 234 5678"/>
+                  <Field label="الموقع الجغرافي" value="الرياض، المملكة العربية السعودية"/>
+                  <div style={{gridColumn:'1/-1'}}><Field label="العنوان" value="طريق الملك فهد، حي العليا، الرياض 12211"/></div>
+                  <div style={{gridColumn:'1/-1'}}>
+                    <div style={{fontSize:'0.72rem',color:'#6B84A8',fontWeight:600,marginBottom:6}}>وصف المنصة</div>
+                    <textarea defaultValue="منصة Golden Horizon للاستثمارات المالية — نقدم خدمات إدارة المحافظ والاستشارات المالية للمستثمرين في منطقة الخليج العربي." rows={3}
+                      style={{width:'100%',padding:'10px 12px',background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:8,color:'#E2E8F4',fontSize:'0.82rem',fontFamily:"'Cairo',sans-serif",resize:'none',outline:'none',boxSizing:'border-box'}}
+                      onFocus={e=>e.target.style.borderColor='#C9A84C'} onBlur={e=>e.target.style.borderColor='#1A2E4A'}/>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+              <div style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:14,padding:20}}>
+                <div style={{fontSize:'0.875rem',fontWeight:700,color:'#E2E8F4',marginBottom:16}}>⚙️ إعدادات النظام</div>
+                {[{label:'الوضع التجريبي (Maintenance Mode)',on:false},{label:'التسجيل مفتوح للعامة',on:false},{label:'عرض بيانات حية من السوق',on:true},{label:'التوقيع الإلكتروني مطلوب',on:true}].map((item,i)=>(
+                  <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0',borderBottom: i<3 ? '1px solid rgba(26,46,74,0.4)' : 'none'}}>
+                    <span style={{fontSize:'0.82rem',color:'#E2E8F4'}}>{item.label}</span>
+                    <Toggle on={item.on} onChange={()=>{}}/>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {activeNav==='financial' && (
+            <div style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:14,padding:20}}>
+              <div style={{fontSize:'0.875rem',fontWeight:700,color:'#E2E8F4',marginBottom:16}}>💰 الهيكل المالي</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+                <Field label="رسوم الإدارة %" value="1.5"/>
+                <Field label="رسوم الأداء %" value="20"/>
+                <Field label="الحد الأدنى للاستثمار ($)" value="10,000"/>
+                <Field label="الحد الأقصى للسحب اليومي ($)" value="500,000"/>
+                <Field label="عملة النظام" value="USD"/>
+                <Field label="المحفظة الافتراضية" value="مختلطة محافظة"/>
+              </div>
+              <div style={{marginTop:16}}>
+                <div style={{fontSize:'0.8rem',fontWeight:700,color:'#E2E8F4',marginBottom:10}}>فئات رسوم الإدارة</div>
+                <div style={{background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:10,overflow:'hidden'}}>
+                  <table style={{width:'100%',borderCollapse:'collapse'}}>
+                    <thead><tr>{['الفئة','الحد الأدنى','الحد الأقصى','الرسوم %'].map(h=><th key={h} style={{padding:'9px 14px',textAlign:'right',fontSize:'0.68rem',color:'#6B84A8',borderBottom:'1px solid #1A2E4A',fontWeight:600}}>{h}</th>)}</tr></thead>
+                    <tbody>
+                      {[['عادي','$10K','$100K','1.5%'],['بريميوم','$100K','$500K','1.2%'],['VIP','$500K+','—','0.9%']].map((row,i)=>(
+                        <tr key={i}><td style={{padding:'9px 14px',fontSize:'0.78rem',color:'#E2E8F4',borderBottom: i<2 ? '1px solid rgba(26,46,74,0.4)' : 'none'}}>{row[0]}</td><td style={{padding:'9px 14px',fontSize:'0.78rem',color:'#6B84A8',borderBottom: i<2 ? '1px solid rgba(26,46,74,0.4)' : 'none',fontFamily:'monospace'}}>{row[1]}</td><td style={{padding:'9px 14px',fontSize:'0.78rem',color:'#6B84A8',borderBottom: i<2 ? '1px solid rgba(26,46,74,0.4)' : 'none',fontFamily:'monospace'}}>{row[2]}</td><td style={{padding:'9px 14px',borderBottom: i<2 ? '1px solid rgba(26,46,74,0.4)' : 'none'}}><span style={{color:'#C9A84C',fontFamily:'monospace',fontWeight:700,fontSize:'0.82rem'}}>{row[3]}</span></td></tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeNav==='api' && (
+            <div style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:14,padding:20}}>
+              <div style={{fontSize:'0.875rem',fontWeight:700,color:'#E2E8F4',marginBottom:16}}>🔗 مفاتيح API والتكامل</div>
+              {[
+                {label:'مفتاح API الرئيسي',value:'gh_prod_••••••••••••••••••••••••••••••••',masked:true},
+                {label:'مفتاح API الاختبار',value:'gh_test_••••••••••••••••••••••••••••••••',masked:true},
+                {label:'Webhook URL',value:'https://goldenhorizon.com/api/webhook'},
+              ].map((f,i)=>(
+                <div key={i} style={{marginBottom:12}}>
+                  <div style={{fontSize:'0.72rem',color:'#6B84A8',fontWeight:600,marginBottom:6}}>{f.label}</div>
+                  <div style={{display:'flex',gap:8}}>
+                    <div style={{flex:1,padding:'10px 12px',background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:8,color:'#E2E8F4',fontSize:'0.78rem',fontFamily:'monospace'}}>{f.value}</div>
+                    <button style={{padding:'10px 14px',background:'rgba(201,168,76,0.1)',border:'1px solid rgba(201,168,76,0.2)',borderRadius:8,color:'#C9A84C',fontSize:'0.72rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif",flexShrink:0}}>نسخ</button>
+                    {f.masked && <button style={{padding:'10px 14px',background:'rgba(59,130,246,0.1)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:8,color:'#3B82F6',fontSize:'0.72rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif",flexShrink:0}}>تجديد</button>}
+                  </div>
+                </div>
+              ))}
+              <div style={{marginTop:16,padding:14,background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.2)',borderRadius:8}}>
+                <div style={{fontSize:'0.75rem',color:'#F59E0B',fontWeight:600,marginBottom:4}}>⚠️ تنبيه أمني</div>
+                <div style={{fontSize:'0.72rem',color:'#E2E8F4',lineHeight:1.6}}>لا تشارك مفاتيح API مع أي شخص. في حال الاشتباه في اختراق، قم بتجديد المفاتيح فوراً.</div>
+              </div>
+            </div>
+          )}
+
+          {!['general','financial','api'].includes(activeNav) && (
+            <div style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:14,padding:40,textAlign:'center'}}>
+              <div style={{fontSize:'2rem',marginBottom:12}}>{navItems.find(n=>n.k===activeNav)?.icon}</div>
+              <div style={{fontSize:'0.9rem',color:'#6B84A8'}}>إعدادات {navItems.find(n=>n.k===activeNav)?.l} — قريباً</div>
+            </div>
+          )}
         </div>
       </div>
     </div>

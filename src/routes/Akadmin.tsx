@@ -11,31 +11,20 @@ function AkadminPage() {
   const [authed, setAuthed] = useState<boolean | null>(null)
 
   useEffect(() => {
+    const meta = document.querySelector('meta[name="viewport"]')
+    const original = meta?.getAttribute('content') ?? 'width=device-width, initial-scale=1'
+    meta?.setAttribute('content', 'width=1280, initial-scale=1')
     const stored = localStorage.getItem('admin_auth')
     setAuthed(stored === 'true')
+    return () => { meta?.setAttribute('content', original) }
   }, [])
 
-  const handleLogin = () => {
-    setAuthed(true)
-  }
+  const handleLogin = () => setAuthed(true)
+  const handleLogout = () => { localStorage.removeItem('admin_auth'); setAuthed(false) }
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_auth')
-    setAuthed(false)
-  }
+  if (authed === null) return <div style={{ minHeight: '100vh', background: '#060E1A' }} />
 
-  if (authed === null) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#060E1A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 40, height: 40, border: '3px solid #1A2E4A', borderTop: '3px solid #C9A84C', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-      </div>
-    )
-  }
-
-  if (!authed) {
-    return <AdminLogin onLogin={handleLogin} />
-  }
-
-  return <AdminLayout onLogout={handleLogout} />
+  return authed
+    ? <AdminLayout onLogout={handleLogout} />
+    : <AdminLogin onLogin={handleLogin} />
 }

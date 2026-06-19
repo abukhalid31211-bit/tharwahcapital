@@ -1,190 +1,178 @@
 import { useState } from 'react'
-import { Plus, Eye, Edit, Trash2, Bold, Italic, Underline, Link, Image, List } from 'lucide-react'
+import { Plus, Eye, Edit, Trash2, X, Bold, Italic, Link } from 'lucide-react'
 import { mockArticles } from '../adminData'
+
+const statusBadge = (s:string) => ({published:{bg:'rgba(0,217,126,0.1)',color:'#00D97E',label:'🟢 منشور'},draft:{bg:'rgba(245,158,11,0.1)',color:'#F59E0B',label:'🟡 مسودة'}}[s]||{bg:'rgba(107,132,168,0.15)',color:'#6B84A8',label:'⚪ أرشيف'})
+
+const categories = ['تحليل','أسهم','رقمي','معادن','فوركس','اقتصاد']
 
 export default function Content() {
   const [tab, setTab] = useState('articles')
   const [showEditor, setShowEditor] = useState(false)
-  const [editorTitle, setEditorTitle] = useState('')
-  const [editorContent, setEditorContent] = useState('')
+  const [title, setTitle] = useState('')
+  const [body, setBody] = useState('')
+  const [cat, setCat] = useState('تحليل')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  const filtered = mockArticles.filter(a => statusFilter === 'all' || a.status === statusFilter)
-
-  const statusBadge = (status: string) => ({
-    published: { bg: 'rgba(0,217,126,0.1)', color: '#00D97E', label: '🟢 منشور' },
-    draft: { bg: 'rgba(245,158,11,0.1)', color: '#F59E0B', label: '🟡 مسودة' },
-  }[status] || { bg: '', color: '', label: status })
-
-  if (showEditor) {
-    return (
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button onClick={() => setShowEditor(false)} style={{ width: 36, height: 36, background: '#0C1A2E', border: '1px solid #1A2E4A', borderRadius: 8, cursor: 'pointer', color: '#6B84A8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>←</button>
-            <h1 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#E2E8F4' }}>محرر المقالات</h1>
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button style={{ padding: '8px 20px', background: 'transparent', border: '1px solid #1A2E4A', borderRadius: 8, color: '#6B84A8', cursor: 'pointer', fontFamily: "'Cairo', sans-serif" }}>مسودة</button>
-            <button style={{ padding: '8px 20px', background: 'linear-gradient(135deg, #C9A84C, #E8C96A)', color: '#060E1A', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontFamily: "'Cairo', sans-serif" }}>🌐 نشر</button>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, alignItems: 'start' }}>
-          {/* Editor */}
-          <div style={{ background: '#0C1A2E', border: '1px solid #1A2E4A', borderRadius: 16, overflow: 'hidden' }}>
-            {/* Toolbar */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, padding: 12, borderBottom: '1px solid #1A2E4A', background: '#060E1A' }}>
-              {[
-                [<Bold key="b" size={14} />, 'عريض'], [<Italic key="i" size={14} />, 'مائل'], [<Underline key="u" size={14} />, 'تسطير'],
-                ['H1', 'رأس 1'], ['H2', 'رأس 2'], [<List key="l" size={14} />, 'قائمة'],
-                [<Link key="lk" size={14} />, 'رابط'], [<Image key="im" size={14} />, 'صورة'],
-              ].map(([icon, title], i) => (
-                <button key={i} title={title as string} style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'transparent', color: '#6B84A8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: typeof icon === 'string' ? '0.75rem' : undefined, fontWeight: 700, transition: 'all 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#111E33', e.currentTarget.style.color = '#E2E8F4')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent', e.currentTarget.style.color = '#6B84A8')}>
-                  {icon}
-                </button>
-              ))}
-            </div>
-
-            {/* Title */}
-            <input value={editorTitle} onChange={e => setEditorTitle(e.target.value)} placeholder="عنوان المقال..."
-              style={{ width: '100%', padding: '20px 24px', background: 'transparent', border: 'none', borderBottom: '1px solid #1A2E4A', outline: 'none', fontSize: '1.4rem', fontWeight: 700, color: '#E2E8F4', fontFamily: "'Cairo', sans-serif", direction: 'rtl', boxSizing: 'border-box' }} />
-            <input placeholder="الوصف التعريفي (Meta Description)..."
-              style={{ width: '100%', padding: '12px 24px', background: 'transparent', border: 'none', borderBottom: '1px solid #1A2E4A', outline: 'none', fontSize: '0.875rem', color: '#6B84A8', fontFamily: "'Cairo', sans-serif", direction: 'rtl', boxSizing: 'border-box' }} />
-
-            {/* Content Area */}
-            <div contentEditable suppressContentEditableWarning
-              style={{ padding: 24, minHeight: 400, direction: 'rtl', fontFamily: "'Cairo', sans-serif", fontSize: '0.95rem', lineHeight: 1.8, color: '#E2E8F4', outline: 'none' }}
-              data-placeholder="ابدأ الكتابة هنا...">
-            </div>
-          </div>
-
-          {/* Settings Panel */}
-          <div style={{ background: '#0C1A2E', border: '1px solid #1A2E4A', borderRadius: 16, overflow: 'hidden', position: 'sticky', top: 84 }}>
-            {[
-              { title: 'التصنيف', content: (
-                <select style={{ width: '100%', padding: '8px 12px', background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, color: '#E2E8F4', fontFamily: "'Cairo', sans-serif", outline: 'none' }}>
-                  {['تحليل', 'أسهم', 'رقمي', 'معادن', 'نفط', 'أخبار'].map(c => <option key={c}>{c}</option>)}
-                </select>
-              )},
-              { title: 'الكلمات المفتاحية', content: (
-                <div style={{ background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, padding: 8, minHeight: 42, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                  {['أسهم', 'استثمار'].map(tag => (
-                    <span key={tag} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: 6, padding: '3px 8px', fontSize: '0.75rem', color: '#C9A84C' }}>
-                      {tag} <span style={{ cursor: 'pointer', opacity: 0.6 }}>×</span>
-                    </span>
-                  ))}
-                  <input placeholder="أضف كلمة..." style={{ background: 'none', border: 'none', outline: 'none', color: '#E2E8F4', fontSize: '0.8rem', minWidth: 80, fontFamily: "'Cairo', sans-serif" }} />
-                </div>
-              )},
-              { title: 'الصورة الرئيسية', content: (
-                <div style={{ border: '2px dashed #1A2E4A', borderRadius: 10, padding: 24, textAlign: 'center', cursor: 'pointer', transition: 'all 0.3s' }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = '#C9A84C'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = '#1A2E4A'}>
-                  <div style={{ fontSize: '1.5rem', marginBottom: 8 }}>🖼️</div>
-                  <div style={{ fontSize: '0.78rem', color: '#6B84A8' }}>اسحب أو انقر للرفع</div>
-                </div>
-              )},
-              { title: 'الكاتب', content: (
-                <select style={{ width: '100%', padding: '8px 12px', background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, color: '#E2E8F4', fontFamily: "'Cairo', sans-serif", outline: 'none' }}>
-                  {['أحمد المشرف', 'خالد محمد', 'نورة السالم'].map(a => <option key={a}>{a}</option>)}
-                </select>
-              )},
-              { title: 'إحصائيات', content: (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {[['عدد الكلمات', '0 كلمة'], ['وقت القراءة', '0 دقيقة']].map(([k, v]) => (
-                    <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                      <span style={{ color: '#6B84A8' }}>{k}</span>
-                      <span style={{ color: '#E2E8F4', fontFamily: 'monospace' }}>{v}</span>
-                    </div>
-                  ))}
-                </div>
-              )},
-            ].map(sec => (
-              <div key={sec.title} style={{ padding: 16, borderBottom: '1px solid #1A2E4A' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#6B84A8', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 10 }}>{sec.title}</div>
-                {sec.content}
-              </div>
-            ))}
-            <div style={{ padding: 16 }}>
-              <button style={{ width: '100%', padding: 12, background: 'linear-gradient(135deg, #C9A84C, #E8C96A)', color: '#060E1A', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontFamily: "'Cairo', sans-serif", marginBottom: 8 }}>🌐 نشر المقال</button>
-              <button style={{ width: '100%', padding: 10, background: 'transparent', border: '1px solid #1A2E4A', borderRadius: 8, color: '#6B84A8', cursor: 'pointer', fontFamily: "'Cairo', sans-serif", fontSize: '0.875rem' }}>حفظ كمسودة</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const filtered = mockArticles.filter(a => statusFilter==='all' || a.status===statusFilter)
+  const stats = [
+    {label:'إجمالي المقالات',value:mockArticles.length,icon:'📰',color:'#3B82F6'},
+    {label:'منشور',value:mockArticles.filter(a=>a.status==='published').length,icon:'🟢',color:'#00D97E'},
+    {label:'مسودة',value:mockArticles.filter(a=>a.status==='draft').length,icon:'🟡',color:'#F59E0B'},
+    {label:'إجمالي المشاهدات',value:mockArticles.reduce((s,a)=>s+a.views,0).toLocaleString(),icon:'👁️',color:'#C9A84C'},
+  ]
 
   return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#E2E8F4' }}>إدارة المحتوى</h1>
-        <button onClick={() => setShowEditor(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: 'linear-gradient(135deg, #C9A84C, #E8C96A)', color: '#060E1A', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer', fontFamily: "'Cairo', sans-serif" }}>
-          <Plus size={16} /> مقال جديد
+    <div style={{display:'flex',flexDirection:'column',gap:20}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div>
+          <h1 style={{fontSize:'1.4rem',fontWeight:800,color:'#E2E8F4',margin:0}}>إدارة المحتوى</h1>
+          <p style={{fontSize:'0.78rem',color:'#6B84A8',marginTop:3}}>المقالات والأخبار والإعلانات</p>
+        </div>
+        <button onClick={()=>setShowEditor(true)} style={{display:'flex',alignItems:'center',gap:6,padding:'9px 16px',background:'linear-gradient(135deg,#C9A84C,#E8C96A)',border:'none',borderRadius:8,color:'#060E1A',fontWeight:700,fontSize:'0.82rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>
+          <Plus size={14}/> مقال جديد
         </button>
       </div>
 
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
+        {stats.map((s,i)=>(
+          <div key={i} style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:12,padding:16,display:'flex',alignItems:'center',gap:12}}>
+            <span style={{fontSize:'1.5rem'}}>{s.icon}</span>
+            <div>
+              <div style={{fontSize:'0.68rem',color:'#6B84A8',fontWeight:600}}>{s.label}</div>
+              <div style={{fontSize:'1.4rem',fontWeight:800,color:s.color,fontFamily:'monospace'}}>{s.value}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid #1A2E4A', marginBottom: 20 }}>
-        {['الأخبار والمقالات', 'صفحات الموقع', 'الخدمات', 'الأسئلة الشائعة'].map(t => (
-          <button key={t} onClick={() => setTab(t)} style={{ padding: '12px 20px', background: 'none', border: 'none', color: tab === t ? '#C9A84C' : '#6B84A8', fontWeight: tab === t ? 700 : 400, cursor: 'pointer', fontFamily: "'Cairo', sans-serif", fontSize: '0.875rem', borderBottom: tab === t ? '2px solid #C9A84C' : '2px solid transparent' }}>{t}</button>
+      <div style={{display:'flex',gap:4,background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:10,padding:4,width:'fit-content'}}>
+        {[{k:'articles',l:'المقالات'},{k:'news',l:'الأخبار'},{k:'announcements',l:'الإعلانات'},{k:'media',l:'مكتبة الوسائط'}].map(t=>(
+          <button key={t.k} onClick={()=>setTab(t.k)} style={{padding:'7px 16px',background: tab===t.k ? '#060E1A' : 'transparent',border:'none',borderRadius:7,color: tab===t.k ? '#E2E8F4' : '#6B84A8',fontSize:'0.78rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif",fontWeight: tab===t.k ? 600 : 400}}>{t.l}</button>
         ))}
       </div>
 
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        {[['all', 'الكل'], ['published', 'منشور'], ['draft', 'مسودة']].map(([key, label]) => (
-          <button key={key} onClick={() => setStatusFilter(key)} style={{ padding: '6px 16px', borderRadius: 8, border: '1px solid', fontSize: '0.82rem', cursor: 'pointer', fontFamily: "'Cairo', sans-serif", borderColor: statusFilter === key ? '#C9A84C' : '#1A2E4A', background: statusFilter === key ? 'rgba(201,168,76,0.1)' : 'transparent', color: statusFilter === key ? '#C9A84C' : '#6B84A8', fontWeight: statusFilter === key ? 600 : 400 }}>
-            {label}
-          </button>
-        ))}
-      </div>
+      {(tab==='articles'||tab==='news') && (
+        <div style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:14,overflow:'hidden'}}>
+          <div style={{padding:'12px 16px',borderBottom:'1px solid #1A2E4A',display:'flex',gap:6}}>
+            {[{k:'all',l:'الكل'},{k:'published',l:'منشور'},{k:'draft',l:'مسودة'}].map(t=>(
+              <button key={t.k} onClick={()=>setStatusFilter(t.k)} style={{padding:'5px 12px',background: statusFilter===t.k ? '#060E1A' : 'transparent',border:`1px solid ${statusFilter===t.k ? '#1A2E4A' : 'transparent'}`,borderRadius:7,color: statusFilter===t.k ? '#E2E8F4' : '#6B84A8',fontSize:'0.72rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>{t.l}</button>
+            ))}
+          </div>
+          <div style={{overflowX:'auto'}}>
+            <table style={{width:'100%',borderCollapse:'collapse',minWidth:800}}>
+              <thead>
+                <tr>{['العنوان','التصنيف','الكاتب','المشاهدات','التعليقات','الحالة','التاريخ','إجراءات'].map(h=>(
+                  <th key={h} style={{padding:'10px 14px',textAlign:'right',fontSize:'0.7rem',fontWeight:600,color:'#6B84A8',borderBottom:'1px solid #1A2E4A',background:'#060E1A',whiteSpace:'nowrap'}}>{h}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {filtered.map(a=>(
+                  <tr key={a.id} onMouseEnter={e=>e.currentTarget.style.background='rgba(201,168,76,0.03)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                    <td style={{padding:'12px 14px',fontSize:'0.8rem',color:'#E2E8F4',borderBottom:'1px solid rgba(26,46,74,0.4)',fontWeight:600,maxWidth:220}}>{a.title}</td>
+                    <td style={{padding:'12px 14px',borderBottom:'1px solid rgba(26,46,74,0.4)'}}>
+                      <span style={{background:'rgba(59,130,246,0.1)',color:'#3B82F6',borderRadius:6,padding:'3px 9px',fontSize:'0.68rem',fontWeight:600}}>{a.category}</span>
+                    </td>
+                    <td style={{padding:'12px 14px',fontSize:'0.78rem',color:'#E2E8F4',borderBottom:'1px solid rgba(26,46,74,0.4)'}}>{a.author}</td>
+                    <td style={{padding:'12px 14px',fontSize:'0.78rem',color:'#C9A84C',borderBottom:'1px solid rgba(26,46,74,0.4)',fontFamily:'monospace'}}>{a.views.toLocaleString()}</td>
+                    <td style={{padding:'12px 14px',fontSize:'0.78rem',color:'#6B84A8',borderBottom:'1px solid rgba(26,46,74,0.4)',fontFamily:'monospace'}}>{a.comments}</td>
+                    <td style={{padding:'12px 14px',borderBottom:'1px solid rgba(26,46,74,0.4)'}}>
+                      <span style={{...statusBadge(a.status),borderRadius:20,padding:'3px 9px',fontSize:'0.68rem',fontWeight:600}}>{statusBadge(a.status).label}</span>
+                    </td>
+                    <td style={{padding:'12px 14px',fontSize:'0.7rem',color:'#6B84A8',borderBottom:'1px solid rgba(26,46,74,0.4)',whiteSpace:'nowrap'}}>{a.date}</td>
+                    <td style={{padding:'12px 14px',borderBottom:'1px solid rgba(26,46,74,0.4)'}}>
+                      <div style={{display:'flex',gap:4}}>
+                        <button style={{width:28,height:28,background:'rgba(59,130,246,0.1)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:6,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:'#3B82F6'}}><Eye size={12}/></button>
+                        <button style={{width:28,height:28,background:'rgba(201,168,76,0.1)',border:'1px solid rgba(201,168,76,0.2)',borderRadius:6,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:'#C9A84C'}}><Edit size={12}/></button>
+                        <button style={{width:28,height:28,background:'rgba(255,69,96,0.1)',border:'1px solid rgba(255,69,96,0.2)',borderRadius:6,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:'#FF4560'}}><Trash2 size={12}/></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
-      {/* Articles */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {filtered.map(a => {
-          const badge = statusBadge(a.status)
-          return (
-            <div key={a.id} style={{ background: '#0C1A2E', border: '1px solid #1A2E4A', borderRadius: 14, padding: 20, display: 'flex', gap: 20, alignItems: 'flex-start', transition: 'border-color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = '#2A3E5A'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = '#1A2E4A'}>
-              {/* Thumbnail */}
-              <div style={{ width: 80, height: 60, background: 'rgba(201,168,76,0.08)', borderRadius: 8, border: '1px solid #1A2E4A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.5rem' }}>📰</div>
-
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#C9A84C', background: 'rgba(201,168,76,0.1)', padding: '2px 8px', borderRadius: 4 }}>🔖 {a.category}</span>
-                  <span style={{ fontSize: '0.72rem', color: '#6B84A8' }}>📅 {a.date}</span>
-                  <span style={{ fontSize: '0.72rem', color: '#6B84A8' }}>👁 {a.views.toLocaleString()}</span>
-                  <span style={{ fontSize: '0.72rem', color: '#6B84A8' }}>💬 {a.comments}</span>
-                </div>
-                <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#E2E8F4', marginBottom: 8 }}>{a.title}</h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ padding: '3px 10px', borderRadius: 10, fontSize: '0.72rem', fontWeight: 700, background: badge.bg, color: badge.color }}>{badge.label}</span>
-                  <span style={{ fontSize: '0.75rem', color: '#6B84A8' }}>✍️ {a.author}</span>
-                </div>
+      {tab==='media' && (
+        <div style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:14,padding:20}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+            <span style={{fontSize:'0.875rem',fontWeight:700,color:'#E2E8F4'}}>مكتبة الوسائط</span>
+            <button style={{padding:'7px 14px',background:'rgba(59,130,246,0.1)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:7,color:'#3B82F6',fontSize:'0.75rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>📤 رفع ملف</button>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:10}}>
+            {Array.from({length:12},(_,i)=>(
+              <div key={i} style={{background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:8,aspectRatio:'1',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:6,cursor:'pointer',fontSize:'1.8rem'}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor='#C9A84C'}
+                onMouseLeave={e=>e.currentTarget.style.borderColor='#1A2E4A'}>
+                {['🖼️','📄','📊','🎬'][i%4]}
+                <span style={{fontSize:'0.6rem',color:'#4A6080'}}>img_{i+1}.png</span>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-              <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                <button onClick={() => setShowEditor(true)} style={{ width: 34, height: 34, background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B84A8', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#C9A84C'; e.currentTarget.style.color = '#C9A84C' }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#1A2E4A'; e.currentTarget.style.color = '#6B84A8' }}>
-                  <Edit size={14} />
-                </button>
-                <button style={{ width: 34, height: 34, background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B84A8' }}>
-                  <Eye size={14} />
-                </button>
-                <button style={{ width: 34, height: 34, background: 'rgba(255,69,96,0.06)', border: '1px solid rgba(255,69,96,0.2)', borderRadius: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FF4560' }}>
-                  <Trash2 size={14} />
-                </button>
+      {tab==='announcements' && (
+        <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          {[
+            {title:'تحديث شروط الخدمة',date:'2025-01-08',status:'نشط',icon:'📋'},
+            {title:'صيانة مجدولة - الجمعة 2 صباحاً',date:'2025-01-10',status:'قادم',icon:'🔧'},
+            {title:'إطلاق ميزة التقارير التلقائية',date:'2025-01-05',status:'مؤرشف',icon:'🚀'},
+          ].map((a,i)=>(
+            <div key={i} style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:12,padding:'14px 18px',display:'flex',alignItems:'center',gap:14}}>
+              <span style={{fontSize:'1.5rem'}}>{a.icon}</span>
+              <div style={{flex:1}}>
+                <div style={{fontSize:'0.85rem',fontWeight:700,color:'#E2E8F4'}}>{a.title}</div>
+                <div style={{fontSize:'0.7rem',color:'#6B84A8',marginTop:3}}>تاريخ النشر: {a.date}</div>
+              </div>
+              <span style={{padding:'4px 12px',borderRadius:20,fontSize:'0.7rem',fontWeight:700,background: a.status==='نشط'?'rgba(0,217,126,0.1)':a.status==='قادم'?'rgba(59,130,246,0.1)':'rgba(107,132,168,0.1)',color: a.status==='نشط'?'#00D97E':a.status==='قادم'?'#3B82F6':'#6B84A8'}}>{a.status}</span>
+              <div style={{display:'flex',gap:4}}>
+                <button style={{width:28,height:28,background:'rgba(201,168,76,0.1)',border:'1px solid rgba(201,168,76,0.2)',borderRadius:6,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:'#C9A84C'}}><Edit size={12}/></button>
+                <button style={{width:28,height:28,background:'rgba(255,69,96,0.1)',border:'1px solid rgba(255,69,96,0.2)',borderRadius:6,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:'#FF4560'}}><Trash2 size={12}/></button>
               </div>
             </div>
-          )
-        })}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {/* Editor Modal */}
+      {showEditor && (
+        <div style={{position:'fixed',inset:0,background:'rgba(6,14,26,0.9)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:20}} onClick={()=>setShowEditor(false)}>
+          <div style={{background:'#0A1628',border:'1px solid #1A2E4A',borderRadius:16,width:'100%',maxWidth:720,maxHeight:'90vh',overflow:'auto'}} onClick={e=>e.stopPropagation()}>
+            <div style={{padding:'16px 20px',borderBottom:'1px solid #1A2E4A',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span style={{fontWeight:700,color:'#E2E8F4'}}>محرر المقالات</span>
+              <button onClick={()=>setShowEditor(false)} style={{background:'none',border:'none',cursor:'pointer',color:'#6B84A8',display:'flex'}}><X size={18}/></button>
+            </div>
+            <div style={{padding:24,display:'flex',flexDirection:'column',gap:16}}>
+              <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="عنوان المقال..." style={{width:'100%',padding:'12px 14px',background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:8,color:'#E2E8F4',fontSize:'1rem',fontWeight:700,fontFamily:"'Cairo',sans-serif",boxSizing:'border-box',outline:'none'}} onFocus={e=>e.target.style.borderColor='#C9A84C'} onBlur={e=>e.target.style.borderColor='#1A2E4A'}/>
+              <div style={{display:'flex',gap:8}}>
+                <select value={cat} onChange={e=>setCat(e.target.value)} style={{padding:'9px 12px',background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:8,color:'#E2E8F4',fontSize:'0.82rem',fontFamily:"'Cairo',sans-serif",outline:'none'}}>
+                  {categories.map(c=><option key={c}>{c}</option>)}
+                </select>
+                <select style={{padding:'9px 12px',background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:8,color:'#E2E8F4',fontSize:'0.82rem',fontFamily:"'Cairo',sans-serif",outline:'none'}}>
+                  <option>منشور</option><option>مسودة</option>
+                </select>
+              </div>
+              <div style={{background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:8,overflow:'hidden'}}>
+                <div style={{padding:'8px 12px',borderBottom:'1px solid #1A2E4A',display:'flex',gap:6}}>
+                  {[{Icon:Bold,label:'B'},{Icon:Italic,label:'I'},{Icon:Link,label:'L'}].map(({Icon,label})=>(
+                    <button key={label} style={{width:28,height:28,background:'#1A2E4A',border:'none',borderRadius:5,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:'#E2E8F4'}}><Icon size={13}/></button>
+                  ))}
+                </div>
+                <textarea value={body} onChange={e=>setBody(e.target.value)} placeholder="اكتب محتوى المقال هنا..." rows={10}
+                  style={{width:'100%',padding:'14px',background:'none',border:'none',color:'#E2E8F4',fontSize:'0.85rem',fontFamily:"'Cairo',sans-serif",resize:'vertical',outline:'none',boxSizing:'border-box'}}/>
+              </div>
+              <div style={{display:'flex',gap:8}}>
+                <button style={{flex:1,padding:'11px',background:'linear-gradient(135deg,#C9A84C,#E8C96A)',border:'none',borderRadius:8,color:'#060E1A',fontWeight:800,cursor:'pointer',fontFamily:"'Cairo',sans-serif",fontSize:'0.85rem'}}>🚀 نشر الآن</button>
+                <button style={{flex:1,padding:'11px',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,color:'#F59E0B',cursor:'pointer',fontFamily:"'Cairo',sans-serif",fontSize:'0.85rem'}}>💾 حفظ كمسودة</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

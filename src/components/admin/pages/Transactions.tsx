@@ -1,163 +1,207 @@
 import { useState } from 'react'
-import { Search, Plus, ChevronDown } from 'lucide-react'
+import { Search, Plus, X, TrendingUp, TrendingDown } from 'lucide-react'
 import { mockTransactions } from '../adminData'
 
-const s = {
-  card: { background: '#0C1A2E', border: '1px solid #1A2E4A', borderRadius: 16, overflow: 'hidden' } as React.CSSProperties,
-  th: { padding: '14px 16px', textAlign: 'right' as const, fontSize: '0.75rem', fontWeight: 600, color: '#6B84A8', letterSpacing: '0.5px', borderBottom: '1px solid #1A2E4A', background: '#060E1A', whiteSpace: 'nowrap' as const },
-  td: { padding: '14px 16px', fontSize: '0.875rem', color: '#E2E8F4', borderBottom: '1px solid rgba(26,46,74,0.5)' },
+const C = {
+  card: { background:'#0C1A2E', border:'1px solid #1A2E4A', borderRadius:14, overflow:'hidden' } as React.CSSProperties,
+  th: { padding:'11px 14px', textAlign:'right' as const, fontSize:'0.7rem', fontWeight:600, color:'#6B84A8', borderBottom:'1px solid #1A2E4A', background:'#060E1A', whiteSpace:'nowrap' as const },
+  td: { padding:'12px 14px', fontSize:'0.8rem', color:'#E2E8F4', borderBottom:'1px solid rgba(26,46,74,0.4)', verticalAlign:'middle' as const },
 }
+
+const typeMap: Record<string,{bg:string;color:string;label:string}> = {
+  buy:{bg:'rgba(0,217,126,0.1)',color:'#00D97E',label:'شراء'},
+  sell:{bg:'rgba(255,69,96,0.1)',color:'#FF4560',label:'بيع'},
+  transfer:{bg:'rgba(59,130,246,0.1)',color:'#3B82F6',label:'تحويل'},
+}
+
+const statusMap: Record<string,{bg:string;color:string;label:string}> = {
+  completed:{bg:'rgba(0,217,126,0.1)',color:'#00D97E',label:'مكتمل'},
+  pending:{bg:'rgba(245,158,11,0.1)',color:'#F59E0B',label:'معلق'},
+  rejected:{bg:'rgba(255,69,96,0.1)',color:'#FF4560',label:'مرفوض'},
+}
+
+const assets = ['أرامكو','BTC','ETH','ذهب','Apple','Microsoft','نفط برنت','Tesla','EUR/USD']
 
 export default function Transactions() {
   const [showModal, setShowModal] = useState(false)
-  const [txType, setTxType] = useState<'buy' | 'sell' | 'transfer'>('buy')
+  const [txType, setTxType] = useState<'buy'|'sell'|'transfer'>('buy')
   const [qty, setQty] = useState('')
   const [price, setPrice] = useState('')
+  const [asset, setAsset] = useState('')
+  const [client, setClient] = useState('')
   const [search, setSearch] = useState('')
+  const [typeFilter, setTypeFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [showApprove, setShowApprove] = useState<number|null>(null)
 
-  const total = parseFloat(qty || '0') * parseFloat(price || '0')
+  const total = parseFloat(qty||'0') * parseFloat(price||'0')
+
+  const filtered = mockTransactions.filter(tx => {
+    if (search && !tx.client.includes(search) && !tx.asset.includes(search)) return false
+    if (typeFilter !== 'all' && tx.type !== typeFilter) return false
+    if (statusFilter !== 'all' && tx.status !== statusFilter) return false
+    return true
+  })
 
   const summaryCards = [
-    { label: 'صفقات اليوم', value: '34', sub: 'صفقة', icon: '⚡', color: '#C9A84C' },
-    { label: 'هذا الشهر', value: '234', sub: 'صفقة', icon: '📅', color: '#3B82F6' },
-    { label: 'إجمالي الحجم', value: '$18.4M', sub: 'هذا الشهر', icon: '💰', color: '#00D97E' },
-    { label: 'صفقات معلقة', value: '7', sub: 'تحتاج موافقة', icon: '⏳', color: '#F59E0B' },
+    {label:'صفقات اليوم',value:'34',sub:'صفقة',icon:'⚡',color:'#C9A84C'},
+    {label:'هذا الشهر',value:'234',sub:'صفقة',icon:'📅',color:'#3B82F6'},
+    {label:'حجم الشهر',value:'$18.4M',sub:'إجمالي',icon:'💰',color:'#00D97E'},
+    {label:'معلقة',value:'7',sub:'تحتاج موافقة',icon:'⏳',color:'#F59E0B'},
+    {label:'شراء',value:mockTransactions.filter(t=>t.type==='buy').length.toString(),sub:'صفقة',icon:'📈',color:'#00D97E'},
+    {label:'بيع',value:mockTransactions.filter(t=>t.type==='sell').length.toString(),sub:'صفقة',icon:'📉',color:'#FF4560'},
   ]
 
+  const pendingTx = mockTransactions.filter(t=>t.status==='pending')
+
   return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+    <div style={{display:'flex',flexDirection:'column',gap:20}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#E2E8F4' }}>العمليات والصفقات</h1>
-          <p style={{ fontSize: '0.85rem', color: '#6B84A8', marginTop: 4 }}>إجمالي {mockTransactions.length} عملية مسجلة</p>
+          <h1 style={{fontSize:'1.4rem',fontWeight:800,color:'#E2E8F4',margin:0}}>العمليات والصفقات</h1>
+          <p style={{fontSize:'0.78rem',color:'#6B84A8',marginTop:3}}>{mockTransactions.length} عملية مسجلة</p>
         </div>
-        <button onClick={() => setShowModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: 'linear-gradient(135deg, #C9A84C, #E8C96A)', color: '#060E1A', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', fontFamily: "'Cairo', sans-serif" }}>
-          <Plus size={16} /> إضافة عملية
+        <button onClick={()=>setShowModal(true)} style={{display:'flex',alignItems:'center',gap:6,padding:'9px 16px',background:'linear-gradient(135deg,#C9A84C,#E8C96A)',border:'none',borderRadius:8,color:'#060E1A',fontWeight:700,fontSize:'0.82rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>
+          <Plus size={14}/> إضافة عملية
         </button>
       </div>
 
-      {/* Summary Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
-        {summaryCards.map((c, i) => (
-          <div key={i} style={{ background: '#0C1A2E', border: '1px solid #1A2E4A', borderRadius: 14, padding: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <span style={{ fontSize: '0.78rem', color: '#6B84A8', fontWeight: 600 }}>{c.label}</span>
-              <span style={{ fontSize: '1.2rem' }}>{c.icon}</span>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:14}}>
+        {summaryCards.map((c,i) => (
+          <div key={i} style={{background:'#0C1A2E',border:'1px solid #1A2E4A',borderRadius:12,padding:'14px 16px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+              <span style={{fontSize:'0.68rem',color:'#6B84A8',fontWeight:600}}>{c.label}</span>
+              <span style={{fontSize:'1rem'}}>{c.icon}</span>
             </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: c.color, fontFamily: 'monospace', lineHeight: 1, marginBottom: 4 }}>{c.value}</div>
-            <div style={{ fontSize: '0.75rem', color: '#6B84A8' }}>{c.sub}</div>
+            <div style={{fontSize:'1.4rem',fontWeight:800,color:c.color,fontFamily:'monospace',lineHeight:1,marginBottom:2}}>{c.value}</div>
+            <div style={{fontSize:'0.65rem',color:'#6B84A8'}}>{c.sub}</div>
           </div>
         ))}
       </div>
 
-      {/* Filters */}
-      <div style={{ ...s.card }}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid #1A2E4A', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, padding: '8px 14px', flex: 1 }}>
-            <Search size={15} color="#6B84A8" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="بحث..."
-              style={{ background: 'none', border: 'none', outline: 'none', color: '#E2E8F4', fontSize: '0.85rem', fontFamily: "'Cairo', sans-serif", width: '100%' }} />
+      {/* Pending Approvals */}
+      {pendingTx.length > 0 && (
+        <div style={{background:'rgba(245,158,11,0.06)',border:'1px solid rgba(245,158,11,0.2)',borderRadius:12,padding:'14px 16px'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+            <span>⏳</span>
+            <span style={{fontSize:'0.85rem',fontWeight:700,color:'#F59E0B'}}>صفقات تنتظر الموافقة</span>
+            <span style={{background:'rgba(245,158,11,0.2)',color:'#F59E0B',borderRadius:10,padding:'2px 8px',fontSize:'0.65rem',fontWeight:700}}>{pendingTx.length}</span>
           </div>
-          {['النوع', 'الأصل', 'العميل', 'التاريخ'].map(f => (
-            <button key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, color: '#6B84A8', fontSize: '0.8rem', cursor: 'pointer', fontFamily: "'Cairo', sans-serif" }}>
-              {f} <ChevronDown size={13} />
-            </button>
-          ))}
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            {pendingTx.map(tx => (
+              <div key={tx.id} style={{background:'#0A1628',border:'1px solid #1A2E4A',borderRadius:8,padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+                <div style={{display:'flex',alignItems:'center',gap:12,flex:1}}>
+                  <span style={{...typeMap[tx.type],borderRadius:20,padding:'3px 10px',fontSize:'0.7rem',fontWeight:700}}>{typeMap[tx.type]?.label}</span>
+                  <span style={{fontSize:'0.82rem',color:'#E2E8F4',fontWeight:600}}>{tx.client}</span>
+                  <span style={{fontSize:'0.78rem',color:'#6B84A8'}}>—</span>
+                  <span style={{fontSize:'0.82rem',color:'#E2E8F4'}}>{tx.asset}</span>
+                  <span style={{fontSize:'0.82rem',color:'#C9A84C',fontFamily:'monospace',fontWeight:700}}>${tx.total.toLocaleString()}</span>
+                </div>
+                <div style={{display:'flex',gap:6}}>
+                  <button style={{padding:'5px 12px',background:'rgba(0,217,126,0.1)',border:'1px solid rgba(0,217,126,0.3)',borderRadius:6,color:'#00D97E',fontSize:'0.72rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>✓ موافقة</button>
+                  <button style={{padding:'5px 12px',background:'rgba(255,69,96,0.1)',border:'1px solid rgba(255,69,96,0.3)',borderRadius:6,color:'#FF4560',fontSize:'0.72rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>✕ رفض</button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+      )}
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      {/* Table */}
+      <div style={C.card}>
+        <div style={{padding:'12px 14px',borderBottom:'1px solid #1A2E4A',display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+          <div style={{display:'flex',gap:2,background:'#060E1A',borderRadius:8,padding:3}}>
+            {[{k:'all',l:'الكل'},{k:'buy',l:'شراء'},{k:'sell',l:'بيع'},{k:'transfer',l:'تحويل'}].map(t => (
+              <button key={t.k} onClick={()=>setTypeFilter(t.k)} style={{padding:'5px 10px',background: typeFilter===t.k ? '#0C1A2E' : 'transparent',border:'none',borderRadius:6,color: typeFilter===t.k ? '#E2E8F4' : '#6B84A8',fontSize:'0.72rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>{t.l}</button>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:2,background:'#060E1A',borderRadius:8,padding:3}}>
+            {[{k:'all',l:'كل الحالات'},{k:'completed',l:'مكتمل'},{k:'pending',l:'معلق'}].map(t => (
+              <button key={t.k} onClick={()=>setStatusFilter(t.k)} style={{padding:'5px 10px',background: statusFilter===t.k ? '#0C1A2E' : 'transparent',border:'none',borderRadius:6,color: statusFilter===t.k ? '#E2E8F4' : '#6B84A8',fontSize:'0.72rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>{t.l}</button>
+            ))}
+          </div>
+          <div style={{flex:1,display:'flex',alignItems:'center',gap:8,background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:8,padding:'7px 12px'}}>
+            <Search size={13} color="#6B84A8"/>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="بحث..." style={{background:'none',border:'none',outline:'none',color:'#E2E8F4',fontSize:'0.78rem',fontFamily:"'Cairo',sans-serif",flex:1}}/>
+          </div>
+        </div>
+        <div style={{overflowX:'auto'}}>
+          <table style={{width:'100%',borderCollapse:'collapse',minWidth:800}}>
             <thead>
-              <tr>
-                {['#', 'النوع', 'العميل', 'الأصل', 'الكمية', 'السعر', 'الإجمالي', 'التاريخ', 'الحالة'].map(h => (
-                  <th key={h} style={s.th}>{h}</th>
-                ))}
-              </tr>
+              <tr>{['#','النوع','العميل','الأصل','الكمية','السعر','الإجمالي','الحالة','التاريخ','إجراء'].map(h=>(
+                <th key={h} style={C.th}>{h}</th>
+              ))}</tr>
             </thead>
             <tbody>
-              {mockTransactions.filter(t => !search || t.client.includes(search) || t.asset.includes(search)).map(t => (
-                <tr key={t.id} style={{ transition: 'background 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(201,168,76,0.03)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  <td style={s.td}><span style={{ fontFamily: 'monospace', color: '#6B84A8', fontSize: '0.8rem' }}>#{t.id}</span></td>
-                  <td style={s.td}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 8, fontSize: '0.78rem', fontWeight: 700, background: t.type === 'buy' ? 'rgba(0,217,126,0.1)' : t.type === 'sell' ? 'rgba(255,69,96,0.1)' : 'rgba(59,130,246,0.1)', color: t.type === 'buy' ? '#00D97E' : t.type === 'sell' ? '#FF4560' : '#3B82F6' }}>
-                      {t.type === 'buy' ? '🟢 شراء' : t.type === 'sell' ? '🔴 بيع' : '↔ تحويل'}
-                    </span>
-                  </td>
-                  <td style={s.td}>{t.client}</td>
-                  <td style={{ ...s.td, fontWeight: 600 }}>{t.asset}</td>
-                  <td style={{ ...s.td, fontFamily: 'monospace' }}>{t.qty}</td>
-                  <td style={{ ...s.td, fontFamily: 'monospace' }}>${t.price.toLocaleString()}</td>
-                  <td style={{ ...s.td, fontFamily: 'monospace', color: '#C9A84C', fontWeight: 600 }}>${t.total.toLocaleString()}</td>
-                  <td style={{ ...s.td, fontSize: '0.78rem', color: '#6B84A8' }}>{t.date}</td>
-                  <td style={s.td}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.78rem', fontWeight: 600, color: t.status === 'completed' ? '#00D97E' : '#F59E0B' }}>
-                      {t.status === 'completed' ? '✅ مكتمل' : '⏳ معلق'}
-                    </span>
+              {filtered.map(tx => (
+                <tr key={tx.id}
+                  onMouseEnter={e=>e.currentTarget.style.background='rgba(201,168,76,0.03)'}
+                  onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                  <td style={{...C.td,fontFamily:'monospace',color:'#4A6080',fontSize:'0.72rem'}}>#{tx.id}</td>
+                  <td style={C.td}><span style={{...typeMap[tx.type],borderRadius:20,padding:'3px 9px',fontSize:'0.68rem',fontWeight:700}}>{typeMap[tx.type]?.label}</span></td>
+                  <td style={C.td}>{tx.client}</td>
+                  <td style={{...C.td,fontWeight:600}}>{tx.asset}</td>
+                  <td style={{...C.td,fontFamily:'monospace'}}>{tx.qty}</td>
+                  <td style={{...C.td,fontFamily:'monospace'}}>${tx.price.toLocaleString()}</td>
+                  <td style={{...C.td,fontFamily:'monospace',fontWeight:700,color:'#C9A84C'}}>${tx.total.toLocaleString()}</td>
+                  <td style={C.td}><span style={{...statusMap[tx.status],borderRadius:20,padding:'3px 9px',fontSize:'0.68rem',fontWeight:600}}>{statusMap[tx.status]?.label}</span></td>
+                  <td style={{...C.td,fontSize:'0.7rem',color:'#6B84A8',whiteSpace:'nowrap'}}>{tx.date}</td>
+                  <td style={C.td}>
+                    {tx.status === 'pending' ? (
+                      <div style={{display:'flex',gap:4}}>
+                        <button style={{padding:'3px 8px',background:'rgba(0,217,126,0.1)',border:'1px solid rgba(0,217,126,0.3)',borderRadius:5,color:'#00D97E',fontSize:'0.62rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>✓</button>
+                        <button style={{padding:'3px 8px',background:'rgba(255,69,96,0.1)',border:'1px solid rgba(255,69,96,0.3)',borderRadius:5,color:'#FF4560',fontSize:'0.62rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>✕</button>
+                      </div>
+                    ) : (
+                      <span style={{fontSize:'0.65rem',color:'#4A6080'}}>—</span>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        <div style={{padding:'10px 14px',borderTop:'1px solid #1A2E4A',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <span style={{fontSize:'0.7rem',color:'#6B84A8'}}>إجمالي {filtered.length} عملية</span>
+          <div style={{display:'flex',gap:4}}>
+            {[1,2,3].map(p=><button key={p} style={{width:26,height:26,background: p===1?'rgba(201,168,76,0.15)':'transparent',border:`1px solid ${p===1?'rgba(201,168,76,0.3)':'#1A2E4A'}`,borderRadius:5,color: p===1?'#C9A84C':'#6B84A8',fontSize:'0.72rem',cursor:'pointer'}}>{p}</button>)}
+          </div>
+        </div>
       </div>
 
-      {/* Add Transaction Modal */}
+      {/* Add Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowModal(false)}>
-          <div style={{ background: '#0C1A2E', border: '1px solid #1A2E4A', borderRadius: 20, width: 520, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 32px 80px rgba(0,0,0,0.6)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #1A2E4A', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#E2E8F4' }}>إضافة عملية جديدة</span>
-              <button onClick={() => setShowModal(false)} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #1A2E4A', background: 'transparent', color: '#6B84A8', cursor: 'pointer', fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+        <div style={{position:'fixed',inset:0,background:'rgba(6,14,26,0.85)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}} onClick={()=>setShowModal(false)}>
+          <div style={{background:'#0A1628',border:'1px solid #1A2E4A',borderRadius:16,width:520,padding:0}} onClick={e=>e.stopPropagation()}>
+            <div style={{padding:'16px 20px',borderBottom:'1px solid #1A2E4A',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span style={{fontWeight:700,fontSize:'0.9rem',color:'#E2E8F4'}}>إضافة عملية جديدة</span>
+              <button onClick={()=>setShowModal(false)} style={{background:'none',border:'none',cursor:'pointer',color:'#6B84A8',display:'flex'}}><X size={18}/></button>
             </div>
-            <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {/* Type Toggle */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#6B84A8', marginBottom: 8 }}>نوع العملية *</label>
-                <div style={{ display: 'flex', gap: 0, background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 10, padding: 4 }}>
-                  {[{ key: 'buy', label: '🟢 شراء' }, { key: 'sell', label: '🔴 بيع' }, { key: 'transfer', label: '↔ تحويل' }].map(t => (
-                    <button key={t.key} onClick={() => setTxType(t.key as typeof txType)}
-                      style={{ flex: 1, padding: '10px', borderRadius: 7, border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, fontFamily: "'Cairo', sans-serif", transition: 'all 0.3s', background: txType === t.key ? (t.key === 'buy' ? 'rgba(0,217,126,0.15)' : t.key === 'sell' ? 'rgba(255,69,96,0.15)' : 'rgba(59,130,246,0.15)') : 'transparent', color: txType === t.key ? (t.key === 'buy' ? '#00D97E' : t.key === 'sell' ? '#FF4560' : '#3B82F6') : '#6B84A8' }}>
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
+            <div style={{padding:24,display:'flex',flexDirection:'column',gap:16}}>
+              <div style={{display:'flex',gap:8}}>
+                {(['buy','sell','transfer'] as const).map(t => (
+                  <button key={t} onClick={()=>setTxType(t)} style={{flex:1,padding:'10px',background: txType===t ? typeMap[t]?.bg : '#060E1A',border:`1px solid ${txType===t ? typeMap[t]?.color+'55' : '#1A2E4A'}`,borderRadius:8,color: txType===t ? typeMap[t]?.color : '#6B84A8',fontWeight: txType===t ? 700 : 400,cursor:'pointer',fontFamily:"'Cairo',sans-serif",fontSize:'0.82rem'}}>
+                    {typeMap[t]?.label}
+                  </button>
+                ))}
               </div>
-
-              {/* Fields */}
-              {[{ label: 'العميل *', placeholder: 'ابحث عن العميل...' }, { label: 'الأصل *', placeholder: 'رمز الأصل (مثال: ARAMCO)' }].map((f, i) => (
-                <div key={i}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#6B84A8', marginBottom: 6 }}>{f.label}</label>
-                  <input placeholder={f.placeholder} style={{ width: '100%', padding: '10px 14px', background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, color: '#E2E8F4', fontSize: '0.875rem', fontFamily: "'Cairo', sans-serif", outline: 'none', boxSizing: 'border-box' }}
-                    onFocus={e => e.target.style.borderColor = '#C9A84C'} onBlur={e => e.target.style.borderColor = '#1A2E4A'} />
+              {[{label:'اسم العميل',value:client,set:setClient,placeholder:'محمد الأحمد'},{label:'الأصل',value:asset,set:setAsset,placeholder:'أرامكو / BTC ...'},{label:'الكمية',value:qty,set:setQty,placeholder:'100'},{label:'سعر الوحدة ($)',value:price,set:setPrice,placeholder:'124.50'}].map(f => (
+                <div key={f.label}>
+                  <div style={{fontSize:'0.72rem',color:'#6B84A8',fontWeight:600,marginBottom:6}}>{f.label}</div>
+                  <input value={f.value} onChange={e=>f.set(e.target.value)} placeholder={f.placeholder} style={{width:'100%',padding:'10px 12px',background:'#060E1A',border:'1px solid #1A2E4A',borderRadius:8,color:'#E2E8F4',fontSize:'0.82rem',fontFamily:"'Cairo',sans-serif",boxSizing:'border-box',outline:'none'}}
+                    onFocus={e=>e.target.style.borderColor='#C9A84C'}
+                    onBlur={e=>e.target.style.borderColor='#1A2E4A'}/>
                 </div>
               ))}
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#6B84A8', marginBottom: 6 }}>الكمية *</label>
-                  <input type="number" value={qty} onChange={e => setQty(e.target.value)} placeholder="0" style={{ width: '100%', padding: '10px 14px', background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, color: '#E2E8F4', fontSize: '0.875rem', fontFamily: "'Cairo', sans-serif", outline: 'none', boxSizing: 'border-box' }}
-                    onFocus={e => e.target.style.borderColor = '#C9A84C'} onBlur={e => e.target.style.borderColor = '#1A2E4A'} />
+              {total > 0 && (
+                <div style={{background:'rgba(201,168,76,0.08)',border:'1px solid rgba(201,168,76,0.2)',borderRadius:8,padding:'12px 14px',display:'flex',justifyContent:'space-between'}}>
+                  <span style={{fontSize:'0.78rem',color:'#6B84A8'}}>الإجمالي المتوقع</span>
+                  <span style={{fontSize:'1.1rem',fontWeight:800,color:'#C9A84C',fontFamily:'monospace'}}>${total.toLocaleString()}</span>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#6B84A8', marginBottom: 6 }}>سعر الوحدة *</label>
-                  <input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '10px 14px', background: '#060E1A', border: '1px solid #1A2E4A', borderRadius: 8, color: '#E2E8F4', fontSize: '0.875rem', fontFamily: "'Cairo', sans-serif", outline: 'none', boxSizing: 'border-box' }}
-                    onFocus={e => e.target.style.borderColor = '#C9A84C'} onBlur={e => e.target.style.borderColor = '#1A2E4A'} />
-                </div>
-              </div>
-
-              {/* Auto Total */}
-              <div style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 10, padding: '14px 16px' }}>
-                <div style={{ fontSize: '0.78rem', color: '#6B84A8', marginBottom: 4 }}>الإجمالي التلقائي</div>
-                <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#C9A84C', fontFamily: 'monospace' }}>
-                  ${total > 0 ? total.toLocaleString('en', { minimumFractionDigits: 2 }) : '0.00'}
-                </div>
-              </div>
-            </div>
-            <div style={{ padding: '16px 24px', borderTop: '1px solid #1A2E4A', display: 'flex', justifyContent: 'space-between' }}>
-              <button onClick={() => setShowModal(false)} style={{ padding: '10px 24px', background: 'transparent', border: '1px solid #1A2E4A', borderRadius: 8, color: '#6B84A8', cursor: 'pointer', fontFamily: "'Cairo', sans-serif" }}>إلغاء</button>
-              <button style={{ padding: '10px 24px', background: 'linear-gradient(135deg, #C9A84C, #E8C96A)', color: '#060E1A', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontFamily: "'Cairo', sans-serif" }}>✅ حفظ العملية</button>
+              )}
+              <button style={{width:'100%',padding:'12px',background:'linear-gradient(135deg,#C9A84C,#E8C96A)',border:'none',borderRadius:8,color:'#060E1A',fontWeight:800,cursor:'pointer',fontFamily:"'Cairo',sans-serif",fontSize:'0.85rem'}}>
+                ✓ تأكيد العملية
+              </button>
             </div>
           </div>
         </div>
