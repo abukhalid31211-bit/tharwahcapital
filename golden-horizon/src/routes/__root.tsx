@@ -24,13 +24,13 @@ function NotFoundComponent() {
             to="/"
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-gold px-6 py-3 font-bold text-white shadow-gold hover:-translate-y-0.5 transition-transform"
           >
-            🏠 العودة للرئيسية
+            العودة للرئيسية
           </Link>
           <Link
             to="/contact"
             className="inline-flex items-center gap-2 rounded-xl border border-gold/40 px-6 py-3 font-bold text-gold hover:bg-gold/10 transition-colors"
           >
-            📞 تواصل معنا
+            تواصل معنا
           </Link>
         </div>
         <div className="mt-8 flex flex-wrap gap-2 justify-center">
@@ -62,7 +62,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isDashboard = pathname.startsWith("/dashboard");
+  const isAdminOrDashboard =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/Akadmin");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -71,12 +72,12 @@ function RootComponent() {
           الانتقال إلى المحتوى الرئيسي
         </a>
         <div className="min-h-screen bg-background text-foreground">
-          {!isDashboard && <SiteHeader />}
-          <main id="main-content" className={!isDashboard ? "pt-[72px]" : ""}>
+          {!isAdminOrDashboard && <SiteHeader />}
+          <main id="main-content" className={!isAdminOrDashboard ? "pt-[72px]" : ""}>
             <Outlet />
           </main>
-          {!isDashboard && <SiteFooter />}
-          {!isDashboard && <WhatsappButton />}
+          {!isAdminOrDashboard && <SiteFooter />}
+          {!isAdminOrDashboard && <WhatsappButton />}
           <BackToTop />
           <CookieBanner />
         </div>
