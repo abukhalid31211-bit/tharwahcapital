@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { mockPortfolios, mockClients, mockClientAccounts, STOCKS_SA_LIST, STOCKS_GLOBAL_LIST, CRYPTO_LIST, FOREX_PAIRS_LIST, METALS_LIST, OIL_TYPES_LIST, BANKS_SA_LIST } from '../adminData'
-import { Plus, Trash2, ChevronDown, ChevronUp, Check, Upload } from 'lucide-react'
+import { Plus, Trash2, ChevronDown, ChevronUp, Check, Upload, X } from 'lucide-react'
 
 const assetColors: Record<string,string> = { stocks:'#3B82F6', crypto:'#F59E0B', metals:'#9CA3AF', oil:'#EF4444' }
 
@@ -91,16 +91,29 @@ function InvestmentTable<T extends Record<string,string>>({
 
 export default function Portfolios() {
   const [mainTab, setMainTab] = useState<'list'|'create'>('list')
-
-  // Portfolio list state
   const [viewMode, setViewMode] = useState<'grid'|'table'>('grid')
+  const [portfoliosList, setPortfoliosList] = useState([...mockPortfolios])
+  const [expandedId, setExpandedId] = useState<number|null>(null)
+  const [deletePortfolioId, setDeletePortfolioId] = useState<number|null>(null)
+  const [portfolioToast, setPortfolioToast] = useState<string|null>(null)
 
-  const totalAUM = mockPortfolios.reduce((s,p)=>s+p.total,0)
+  const showPToast = (msg:string) => {
+    setPortfolioToast(msg)
+    setTimeout(()=>setPortfolioToast(null),3000)
+  }
+
+  const handleDeletePortfolio = (id:number) => {
+    setPortfoliosList(prev=>prev.filter(p=>p.clientId!==id))
+    setDeletePortfolioId(null)
+    showPToast('🗑️ تم حذف المحفظة بنجاح')
+  }
+
+  const totalAUM = portfoliosList.reduce((s,p)=>s+p.total,0)
   const summaryCards = [
-    {label:'إجمالي المحافظ',value:mockPortfolios.length.toString(),icon:'📁',color:'#3B82F6'},
+    {label:'إجمالي المحافظ',value:portfoliosList.length.toString(),icon:'📁',color:'#3B82F6'},
     {label:'إجمالي AUM',value:'$' + (totalAUM/1000).toFixed(0)+'K',icon:'💰',color:'#0EA5E9'},
-    {label:'متوسط العائد',value:'+19.4%',icon:'📈',color:'#00D97E'},
-    {label:'أعلى أداء',value:[...mockPortfolios].sort((a,b)=>b.return-a.return)[0]?.clientName.split(' ')[0]||'',icon:'🏆',color:'#F59E0B'},
+    {label:'متوسط العائد',value:portfoliosList.length?'+' + (portfoliosList.reduce((s,p)=>s+p.return,0)/portfoliosList.length).toFixed(1)+'%':'-',icon:'📈',color:'#00D97E'},
+    {label:'أعلى أداء',value:[...portfoliosList].sort((a,b)=>b.return-a.return)[0]?.clientName.split(' ')[0]||'',icon:'🏆',color:'#F59E0B'},
   ]
 
   // ===== Create Portfolio Form State =====
@@ -223,7 +236,7 @@ export default function Portfolios() {
           <div style={{background:'#F8FAFC',border:'1px solid #E2E8F0',borderRadius:14,padding:20}}>
             <div style={{fontSize:'0.875rem',fontWeight:700,color:'#1E293B',marginBottom:14}}>ترتيب الأداء</div>
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
-              {[...mockPortfolios].sort((a,b)=>b.return-a.return).map((p,i)=>(
+              {[...portfoliosList].sort((a,b)=>b.return-a.return).map((p,i)=>(
                 <div key={p.clientId} style={{display:'flex',alignItems:'center',gap:14,padding:'10px 14px',background:'#F1F5F9',border:'1px solid #E2E8F0',borderRadius:10}}>
                   <span style={{fontSize:'1.1rem',flexShrink:0}}>{i===0?'🥇':i===1?'🥈':'🥉'}</span>
                   <span style={{fontSize:'0.85rem',fontWeight:600,color:'#1E293B',flex:1}}>{p.clientName}</span>
@@ -238,8 +251,11 @@ export default function Portfolios() {
           </div>
 
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}}>
-            {mockPortfolios.map(p=>(
-              <div key={p.clientId} style={{background:'#F8FAFC',border:'1px solid #E2E8F0',borderRadius:14,overflow:'hidden'}}>
+            {portfoliosList.map(p=>(
+              <div key={p.clientId} style={{background:'#F8FAFC',border:'1px solid #E2E8F0',borderRadius:14,overflow:'hidden',transition:'box-shadow .2s'}}
+                onMouseEnter={e=>(e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)')}
+                onMouseLeave={e=>(e.currentTarget.style.boxShadow='none')}
+              >
                 <div style={{padding:'14px 16px',borderBottom:'1px solid #E2E8F0',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div style={{display:'flex',alignItems:'center',gap:10}}>
                     <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,#0EA5E9,#38BDF8)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.9rem',fontWeight:700,color:'#FFF',flexShrink:0}}>{p.clientName.charAt(0)}</div>
@@ -248,31 +264,41 @@ export default function Portfolios() {
                       <div style={{fontSize:'0.65rem',color:'#64748B'}}>{p.advisor}</div>
                     </div>
                   </div>
-                  <span style={{fontSize:'0.78rem',fontWeight:700,color:'#00D97E'}}>+{p.return}%</span>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <span style={{fontSize:'0.78rem',fontWeight:700,color:'#00D97E'}}>+{p.return}%</span>
+                    <button onClick={()=>setDeletePortfolioId(p.clientId)}
+                      style={{width:22,height:22,background:'rgba(255,69,96,0.1)',border:'1px solid rgba(255,69,96,0.2)',borderRadius:5,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:'#FF4560',padding:0}}>
+                      <Trash2 size={11}/>
+                    </button>
+                  </div>
                 </div>
                 <div style={{padding:'14px 16px'}}>
                   <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}>
                     <span style={{fontSize:'0.72rem',color:'#64748B'}}>إجمالي المحفظة</span>
                     <span style={{fontSize:'1rem',fontWeight:800,color:'#0EA5E9',fontFamily:'monospace'}}>${p.total.toLocaleString()}</span>
                   </div>
-                  <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                    {p.assets.map((a,ai)=>(
-                      <div key={ai} style={{display:'flex',alignItems:'center',gap:8}}>
-                        <div style={{width:6,height:6,borderRadius:'50%',background:assetColors[a.type]||'#64748B',flexShrink:0}}/>
-                        <span style={{fontSize:'0.72rem',color:'#1E293B',flex:1}}>{a.name}</span>
-                        <span style={{fontSize:'0.7rem',color:'#64748B',fontFamily:'monospace'}}>${a.value.toLocaleString()}</span>
-                        <span style={{fontSize:'0.68rem',fontWeight:600,color:a.change>=0?'#00D97E':'#FF4560',fontFamily:'monospace'}}>{a.change>=0?'+':''}{a.change}%</span>
-                      </div>
-                    ))}
-                  </div>
+                  {(expandedId===p.clientId || true) && (
+                    <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                      {p.assets.map((a,ai)=>(
+                        <div key={ai} style={{display:'flex',alignItems:'center',gap:8}}>
+                          <div style={{width:6,height:6,borderRadius:'50%',background:assetColors[a.type]||'#64748B',flexShrink:0}}/>
+                          <span style={{fontSize:'0.72rem',color:'#1E293B',flex:1}}>{a.name}</span>
+                          <span style={{fontSize:'0.7rem',color:'#64748B',fontFamily:'monospace'}}>${a.value.toLocaleString()}</span>
+                          <span style={{fontSize:'0.68rem',fontWeight:600,color:a.change>=0?'#00D97E':'#FF4560',fontFamily:'monospace'}}>{a.change>=0?'+':''}{a.change}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div style={{marginTop:12,height:6,background:'#CBD5E1',borderRadius:3,overflow:'hidden',display:'flex'}}>
                     {p.assets.map((a,ai)=>(
                       <div key={ai} style={{height:'100%',flex:a.value/p.total,background:assetColors[a.type]||'#64748B'}}/>
                     ))}
                   </div>
                   <div style={{marginTop:10,display:'flex',gap:6}}>
-                    <button style={{flex:1,padding:'7px',background:'rgba(59,130,246,0.1)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:7,color:'#3B82F6',fontSize:'0.7rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>📊 تقرير</button>
-                    <button style={{flex:1,padding:'7px',background:'rgba(14,165,233,0.1)',border:'1px solid rgba(14,165,233,0.2)',borderRadius:7,color:'#0EA5E9',fontSize:'0.7rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>✏️ تعديل</button>
+                    <button onClick={()=>showPToast(`📄 تم تجهيز تقرير ${p.clientName}`)}
+                      style={{flex:1,padding:'7px',background:'rgba(59,130,246,0.1)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:7,color:'#3B82F6',fontSize:'0.7rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>📊 تقرير</button>
+                    <button onClick={()=>showPToast(`✏️ فتح نموذج تعديل محفظة ${p.clientName}`)}
+                      style={{flex:1,padding:'7px',background:'rgba(14,165,233,0.1)',border:'1px solid rgba(14,165,233,0.2)',borderRadius:7,color:'#0EA5E9',fontSize:'0.7rem',cursor:'pointer',fontFamily:"'Cairo',sans-serif"}}>✏️ تعديل</button>
                   </div>
                 </div>
               </div>
@@ -701,6 +727,38 @@ export default function Portfolios() {
             </div>
           </div>
         </form>
+      )}
+
+      {/* ── Delete Portfolio Modal ── */}
+      {deletePortfolioId !== null && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <div style={{background:'#FFFFFF',borderRadius:16,padding:28,width:360,textAlign:'center',boxShadow:'0 25px 50px rgba(0,0,0,0.2)'}}>
+            <div style={{fontSize:'2rem',marginBottom:12}}>🗑️</div>
+            <div style={{fontSize:'1rem',fontWeight:800,color:'#1E293B',marginBottom:8}}>حذف المحفظة</div>
+            <div style={{fontSize:'0.82rem',color:'#64748B',marginBottom:22}}>
+              هل أنت متأكد من حذف هذه المحفظة؟ لا يمكن التراجع عن هذا الإجراء.
+            </div>
+            <div style={{display:'flex',gap:10}}>
+              <button onClick={()=>setDeletePortfolioId(null)}
+                style={{flex:1,padding:'10px',border:'1px solid #E2E8F0',borderRadius:9,background:'#F8FAFC',cursor:'pointer',fontFamily:"'Cairo',sans-serif",fontWeight:600,fontSize:'0.83rem',color:'#64748B'}}>
+                إلغاء
+              </button>
+              <button onClick={()=>handleDeletePortfolio(deletePortfolioId)}
+                style={{flex:1,padding:'10px',border:'none',borderRadius:9,background:'linear-gradient(135deg,#EF4444,#DC2626)',cursor:'pointer',fontFamily:"'Cairo',sans-serif",fontWeight:700,fontSize:'0.83rem',color:'#FFF'}}>
+                تأكيد الحذف
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Toast ── */}
+      {portfolioToast && (
+        <div style={{position:'fixed',bottom:28,right:28,zIndex:300,padding:'12px 20px',borderRadius:12,
+          background:'#1E293B',color:'#FFF',fontWeight:700,fontSize:'0.83rem',
+          boxShadow:'0 8px 30px rgba(0,0,0,0.2)',fontFamily:"'Cairo',sans-serif"}}>
+          {portfolioToast}
+        </div>
       )}
     </div>
   )
