@@ -1,5 +1,8 @@
 {
+  "installCommand": "cd .. && bun install",
+  "buildCommand": "cd .. && bun run build && mkdir -p dist && cp -r ../dist/. dist/",
   "outputDirectory": "dist",
+  "framework": null,
   "rewrites": [
     {
       "source": "/(.*)",
