@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Eye, EyeOff, Shield, Lock, Mail, AlertTriangle } from 'lucide-react'
 import { ADMIN_CREDENTIALS } from './adminData'
+import { getSubAdmins } from './pages/SubAdmins'
 
 interface Props {
-  onLogin: () => void
+  onLogin: (role: 'super' | 'sub') => void
 }
 
 export default function AdminLogin({ onLogin }: Props) {
@@ -21,19 +22,47 @@ export default function AdminLogin({ onLogin }: Props) {
     if (locked) return
     setLoading(true)
     setTimeout(() => {
+      // Check super admin
       if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
         localStorage.setItem('admin_auth', 'true')
-        onLogin()
-      } else {
-        const newAttempts = attempts + 1
-        setAttempts(newAttempts)
-        setError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+        localStorage.setItem('admin_role', 'super')
+        localStorage.setItem('admin_email', email)
+        onLogin('super')
+        setLoading(false)
+        return
+      }
+
+      // Check sub-admins
+      const subAdmins = getSubAdmins()
+      const matched = subAdmins.find(s => s.email === email && s.password === password && s.status === 'active')
+      if (matched) {
+        localStorage.setItem('admin_auth', 'true')
+        localStorage.setItem('admin_role', 'sub')
+        localStorage.setItem('admin_email', email)
+        localStorage.setItem('admin_name', matched.name)
+        onLogin('sub')
+        setLoading(false)
+        return
+      }
+
+      // Check if sub-admin exists but is inactive
+      const inactiveMatch = subAdmins.find(s => s.email === email && s.password === password && s.status === 'inactive')
+      if (inactiveMatch) {
+        setError('حسابك معطل. تواصل مع المشرف الرئيسي.')
         setShake(true)
         setTimeout(() => setShake(false), 600)
-        if (newAttempts >= 5) {
-          setLocked(true)
-          setError('تم قفل الحساب. حاول مجدداً بعد 30 دقيقة.')
-        }
+        setLoading(false)
+        return
+      }
+
+      const newAttempts = attempts + 1
+      setAttempts(newAttempts)
+      setError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+      setShake(true)
+      setTimeout(() => setShake(false), 600)
+      if (newAttempts >= 5) {
+        setLocked(true)
+        setError('تم قفل الحساب. حاول مجدداً بعد 30 دقيقة.')
       }
       setLoading(false)
     }, 800)
@@ -172,7 +201,7 @@ export default function AdminLogin({ onLogin }: Props) {
           هذه منطقة محظورة — الوصول غير المصرح به مُراقب
         </div>
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: '0.72rem', color: '#64748B', fontFamily: 'monospace' }}>
-          نسيت كلمة المرور؟ تواصل مع فريق الدعم
+          نسيت كلمة المرور؟ تواصل مع المشرف الرئيسي
         </div>
       </div>
 
