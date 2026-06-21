@@ -1,47 +1,37 @@
-import { Calendar, ArrowLeft, Clock } from "lucide-react";
+import { Calendar, ArrowLeft, ArrowRight, Clock } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useLang } from "../../contexts/LanguageContext";
 
-const news = [
-  {
-    slug: "bitcoin-2025-outlook",
-    cat: "عملات رقمية",
-    title: "بيتكوين يسجل مستويات قياسية — ماذا يعني للمستثمر العربي؟",
-    excerpt: "بعد ارتفاع 45% في الربع الأول، نحلل أفق سوق العملات الرقمية وما إذا كانت فرصة الشراء لا تزال قائمة.",
-    date: "15 يونيو 2025",
-    readTime: "8 دق",
-    hot: true,
-  },
-  {
-    slug: "gulf-stocks-q2",
-    cat: "الأسهم الخليجية",
-    title: "تحليل أداء أسواق الخليج في الربع الثاني",
-    excerpt: "الفرص والمخاطر في أسواق السعودية وأبوظبي ودبي خلال الأشهر القادمة مع توقعات فريقنا.",
-    date: "10 يونيو 2025",
-    readTime: "12 دق",
-    hot: false,
-  },
-  {
-    slug: "gold-inflation-hedge",
-    cat: "المعادن",
-    title: "الذهب كسلاح ضد التضخم — هل حان وقت التراجع؟",
-    excerpt: "نحلل دور الذهب في المحفظة الاستثمارية المتوازنة في ضوء بيانات التضخم الأخيرة.",
-    date: "5 يونيو 2025",
-    readTime: "6 دق",
-    hot: false,
-  },
+const newsAr = [
+  { slug: "bitcoin-2025-outlook", cat: "عملات رقمية", title: "بيتكوين يسجل مستويات قياسية — ماذا يعني للمستثمر العربي؟", excerpt: "بعد ارتفاع 45% في الربع الأول، نحلل أفق سوق العملات الرقمية وما إذا كانت فرصة الشراء لا تزال قائمة.", date: "15 يونيو 2025", readTime: "8 دق", hot: true },
+  { slug: "gulf-stocks-q2", cat: "الأسهم الخليجية", title: "تحليل أداء أسواق الخليج في الربع الثاني", excerpt: "الفرص والمخاطر في أسواق السعودية وأبوظبي ودبي خلال الأشهر القادمة مع توقعات فريقنا.", date: "10 يونيو 2025", readTime: "12 دق", hot: false },
+  { slug: "gold-inflation-hedge", cat: "المعادن", title: "الذهب كسلاح ضد التضخم — هل حان وقت التراجع؟", excerpt: "نحلل دور الذهب في المحفظة الاستثمارية المتوازنة في ضوء بيانات التضخم الأخيرة.", date: "5 يونيو 2025", readTime: "6 دق", hot: false },
+];
+
+const newsEn = [
+  { slug: "bitcoin-2025-outlook", cat: "Crypto", title: "Bitcoin Hits Record Highs — What Does It Mean for Arab Investors?", excerpt: "After a 45% surge in Q1, we analyze the crypto market outlook and whether the buying opportunity still exists.", date: "Jun 15, 2025", readTime: "8 min", hot: true },
+  { slug: "gulf-stocks-q2", cat: "Gulf Stocks", title: "Gulf Markets Performance Analysis — Q2", excerpt: "Opportunities and risks in Saudi Arabia, Abu Dhabi, and Dubai markets over the coming months with our team's forecasts.", date: "Jun 10, 2025", readTime: "12 min", hot: false },
+  { slug: "gold-inflation-hedge", cat: "Metals", title: "Gold as an Inflation Hedge — Is a Pullback Due?", excerpt: "We analyze the role of gold in a balanced investment portfolio in light of the latest inflation data.", date: "Jun 5, 2025", readTime: "6 min", hot: false },
 ];
 
 export function LatestNews() {
+  const { t, lang } = useLang();
+  const isAr = lang === 'ar';
+  const news = isAr ? newsAr : newsEn;
+  const Arrow = isAr ? ArrowLeft : ArrowRight;
+
   return (
     <section className="py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <div className="flex items-end justify-between mb-10">
           <div>
-            <span className="text-xs font-black tracking-[0.3em] text-gold uppercase">المدونة</span>
-            <h2 className="mt-2 text-4xl font-black text-foreground">آخر <span className="text-gradient-gold">التحليلات</span></h2>
+            <span className="text-xs font-black tracking-[0.3em] text-gold uppercase">{t('news_label')}</span>
+            <h2 className="mt-2 text-4xl font-black text-foreground">
+              {t('news_heading')} <span className="text-gradient-gold">{t('news_heading_gold')}</span>
+            </h2>
           </div>
           <Link to="/news" className="inline-flex items-center gap-2 text-sm font-bold text-gold hover:gap-3 transition-all">
-            كل المقالات <ArrowLeft className="size-4" />
+            {t('news_all_articles')} <Arrow className="size-4" />
           </Link>
         </div>
 
@@ -55,7 +45,7 @@ export function LatestNews() {
               <div className="h-44 bg-gradient-navy flex items-center justify-center text-5xl">📰</div>
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-3">
-                  {n.hot && <span className="text-[10px] font-black bg-down/10 text-down rounded-full px-2 py-0.5">🔥 رائج</span>}
+                  {n.hot && <span className="text-[10px] font-black bg-down/10 text-down rounded-full px-2 py-0.5">🔥 {t('news_trending')}</span>}
                   <span className="text-[10px] font-black text-gold bg-gold/10 rounded-full px-2 py-0.5">{n.cat}</span>
                 </div>
                 <h3 className="font-bold text-foreground line-clamp-2 group-hover:text-gold transition-colors">{n.title}</h3>
