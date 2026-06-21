@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Search, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
+import { useLang } from "../contexts/LanguageContext";
 
 export const Route = createFileRoute("/markets")({ component: Markets });
 
 type Asset = { name: string; sym: string; price: string; chg: number; vol: string; mktCap: string; };
 
-const data: Record<string, Asset[]> = {
+const dataAr: Record<string, Asset[]> = {
   "الأسهم": [
     { name: "أرامكو السعودية", sym: "2222.SR", price: "35.20 ر.س", chg: 1.4, vol: "12.3M", mktCap: "7.5T" },
     { name: "بنك الراجحي", sym: "1120.SR", price: "91.80 ر.س", chg: -0.8, vol: "4.1M", mktCap: "345B" },
@@ -39,26 +40,69 @@ const data: Record<string, Asset[]> = {
   ],
 };
 
+const dataEn: Record<string, Asset[]> = {
+  "Stocks": [
+    { name: "Saudi Aramco", sym: "2222.SR", price: "SAR 35.20", chg: 1.4, vol: "12.3M", mktCap: "7.5T" },
+    { name: "Al Rajhi Bank", sym: "1120.SR", price: "SAR 91.80", chg: -0.8, vol: "4.1M", mktCap: "345B" },
+    { name: "SABIC", sym: "2010.SR", price: "SAR 83.50", chg: 0.3, vol: "2.8M", mktCap: "265B" },
+    { name: "ADCB Bank", sym: "ADCB", price: "AED 9.42", chg: 2.1, vol: "8.6M", mktCap: "84B" },
+    { name: "Emirates NBD", sym: "ENBD", price: "AED 14.80", chg: -0.5, vol: "3.2M", mktCap: "88B" },
+    { name: "Cairo Bank", sym: "CAIR", price: "EGP 12.25", chg: 1.8, vol: "5.4M", mktCap: "22B" },
+    { name: "Apple", sym: "AAPL", price: "$192.53", chg: 0.6, vol: "55.2M", mktCap: "3.0T" },
+    { name: "Microsoft", sym: "MSFT", price: "$418.20", chg: -0.3, vol: "22.1M", mktCap: "3.1T" },
+    { name: "NVIDIA", sym: "NVDA", price: "$875.40", chg: 3.2, vol: "45.7M", mktCap: "2.1T" },
+  ],
+  "Crypto": [
+    { name: "Bitcoin", sym: "BTC/USD", price: "$67,320", chg: 2.4, vol: "28.4B", mktCap: "1.32T" },
+    { name: "Ethereum", sym: "ETH/USD", price: "$3,512", chg: -1.2, vol: "12.1B", mktCap: "422B" },
+    { name: "BNB", sym: "BNB/USD", price: "$588", chg: 0.8, vol: "2.1B", mktCap: "85B" },
+    { name: "Ripple", sym: "XRP/USD", price: "$0.52", chg: -0.4, vol: "1.8B", mktCap: "29B" },
+    { name: "Solana", sym: "SOL/USD", price: "$175", chg: 4.1, vol: "3.5B", mktCap: "80B" },
+    { name: "Cardano", sym: "ADA/USD", price: "$0.46", chg: 1.5, vol: "0.9B", mktCap: "16B" },
+  ],
+  "Metals": [
+    { name: "Gold", sym: "XAU/USD", price: "$2,325/oz", chg: 0.5, vol: "N/A", mktCap: "N/A" },
+    { name: "Silver", sym: "XAG/USD", price: "$29.80/oz", chg: -0.3, vol: "N/A", mktCap: "N/A" },
+    { name: "Platinum", sym: "XPT/USD", price: "$993/oz", chg: 1.1, vol: "N/A", mktCap: "N/A" },
+    { name: "Palladium", sym: "XPD/USD", price: "$925/oz", chg: -1.8, vol: "N/A", mktCap: "N/A" },
+  ],
+  "Energy": [
+    { name: "WTI Crude Oil", sym: "CL", price: "$79.40/bbl", chg: 1.2, vol: "N/A", mktCap: "N/A" },
+    { name: "Brent Crude", sym: "BZ", price: "$83.10/bbl", chg: 0.9, vol: "N/A", mktCap: "N/A" },
+    { name: "Natural Gas", sym: "NG", price: "$2.18/MMBtu", chg: -2.1, vol: "N/A", mktCap: "N/A" },
+  ],
+};
+
 function Markets() {
-  const [tab, setTab] = useState("الأسهم");
+  const { t, lang } = useLang();
+  const isAr = lang === 'ar';
+  const data = isAr ? dataAr : dataEn;
+  const tabKeys = Object.keys(data);
+
+  const [tab, setTab] = useState(tabKeys[0]);
   const [search, setSearch] = useState("");
 
   const filtered = (data[tab] || []).filter(
-    (r) => r.name.includes(search) || r.sym.toLowerCase().includes(search.toLowerCase())
+    (r) => r.name.toLowerCase().includes(search.toLowerCase()) || r.sym.toLowerCase().includes(search.toLowerCase())
   );
+
+  const noResults = isAr ? "لا توجد نتائج مطابقة" : "No matching results";
+  const lastUpdated = isAr ? "آخر تحديث: منذ 5 دقائق" : "Last updated: 5 minutes ago";
+  const disclaimer = isAr
+    ? "⚠️ الأسعار للأغراض المعلوماتية فقط وقد تكون متأخرة 15 دقيقة. لا تُعدّ نصيحة استثمارية."
+    : "⚠️ Prices are for informational purposes only and may be delayed by 15 minutes. Not investment advice.";
 
   return (
     <div className="bg-background">
+      {/* Hero */}
       <section className="relative py-28 bg-gradient-hero overflow-hidden">
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "linear-gradient(oklch(0.55 0.25 300) 1px,transparent 1px),linear-gradient(90deg,oklch(0.55 0.25 300) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
         <div className="relative mx-auto max-w-7xl px-5 lg:px-8 text-center">
-          <span className="text-xs font-black tracking-[0.3em] text-gold uppercase">الأسواق</span>
+          <span className="text-xs font-black tracking-[0.3em] text-gold uppercase">{t('markets_page_label')}</span>
           <h1 className="mt-5 text-5xl md:text-6xl font-black text-foreground leading-tight">
-            أسواق مالية <span className="text-gradient-gold">مباشرة</span>
+            {t('markets_page_heading')} <span className="text-gradient-gold">{t('markets_page_heading_gold')}</span>
           </h1>
-          <p className="mt-6 max-w-2xl mx-auto text-lg text-text-muted leading-relaxed">
-            تابع أسعار الأصول في الوقت الفعلي — أسهم خليجية وعالمية، عملات رقمية، معادن ونفط.
-          </p>
+          <p className="mt-6 max-w-2xl mx-auto text-lg text-text-muted leading-relaxed">{t('markets_page_desc')}</p>
         </div>
       </section>
 
@@ -66,13 +110,13 @@ function Markets() {
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           {/* Tabs */}
           <div className="flex flex-wrap gap-2 mb-8">
-            {Object.keys(data).map((t) => (
+            {tabKeys.map((tabKey) => (
               <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`rounded-xl px-5 py-2.5 text-sm font-bold transition-all ${tab === t ? "bg-gradient-gold text-white shadow-gold" : "border border-border bg-navy-mid text-text-muted hover:border-gold hover:text-gold"}`}
+                key={tabKey}
+                onClick={() => { setTab(tabKey); setSearch(""); }}
+                className={`rounded-xl px-5 py-2.5 text-sm font-bold transition-all ${tab === tabKey ? "bg-gradient-gold text-white shadow-gold" : "border border-border bg-navy-mid text-text-muted hover:border-gold hover:text-gold"}`}
               >
-                {t}
+                {tabKey}
               </button>
             ))}
           </div>
@@ -84,15 +128,15 @@ function Markets() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ابحث في الأصول..."
+                placeholder={t('markets_search')}
                 className="w-full rounded-xl border border-border bg-white py-2.5 pr-10 pl-4 text-sm focus:border-gold focus:outline-none"
               />
             </div>
             <button className="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-text-muted hover:border-gold hover:text-gold transition-colors">
               <RefreshCw className="size-4" />
-              تحديث
+              {t('markets_refresh')}
             </button>
-            <span className="text-xs text-text-muted">آخر تحديث: منذ 5 دقائق</span>
+            <span className="text-xs text-text-muted">{lastUpdated}</span>
           </div>
 
           {/* Table */}
@@ -101,20 +145,18 @@ function Markets() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-navy-mid text-right">
-                    <th className="px-5 py-4 font-black text-foreground">الأصل</th>
-                    <th className="px-5 py-4 font-black text-foreground">الرمز</th>
-                    <th className="px-5 py-4 font-black text-foreground">السعر</th>
-                    <th className="px-5 py-4 font-black text-foreground">التغيير</th>
-                    <th className="px-5 py-4 font-black text-foreground hidden md:table-cell">الحجم</th>
-                    <th className="px-5 py-4 font-black text-foreground hidden lg:table-cell">القيمة السوقية</th>
+                    <th className="px-5 py-4 font-black text-foreground">{t('markets_col_asset')}</th>
+                    <th className="px-5 py-4 font-black text-foreground">{t('markets_col_symbol')}</th>
+                    <th className="px-5 py-4 font-black text-foreground">{t('markets_col_price')}</th>
+                    <th className="px-5 py-4 font-black text-foreground">{t('markets_col_change')}</th>
+                    <th className="px-5 py-4 font-black text-foreground hidden md:table-cell">{t('markets_col_volume')}</th>
+                    <th className="px-5 py-4 font-black text-foreground hidden lg:table-cell">{t('markets_col_mktcap')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((r, i) => (
                     <tr key={r.sym} className={`border-b border-border transition-colors hover:bg-navy-mid ${i % 2 === 0 ? "bg-white" : "bg-navy-mid/50"}`}>
-                      <td className="px-5 py-4">
-                        <span className="font-bold text-foreground">{r.name}</span>
-                      </td>
+                      <td className="px-5 py-4"><span className="font-bold text-foreground">{r.name}</span></td>
                       <td className="px-5 py-4 font-mono text-xs text-text-muted">{r.sym}</td>
                       <td className="px-5 py-4 font-mono font-bold text-foreground">{r.price}</td>
                       <td className="px-5 py-4">
@@ -128,16 +170,14 @@ function Markets() {
                     </tr>
                   ))}
                   {filtered.length === 0 && (
-                    <tr><td colSpan={6} className="py-16 text-center text-text-muted">لا توجد نتائج مطابقة</td></tr>
+                    <tr><td colSpan={6} className="py-16 text-center text-text-muted">{noResults}</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
           </div>
 
-          <p className="mt-4 text-xs text-text-muted text-center">
-            ⚠️ الأسعار للأغراض المعلوماتية فقط وقد تكون متأخرة 15 دقيقة. لا تُعدّ نصيحة استثمارية.
-          </p>
+          <p className="mt-4 text-xs text-text-muted text-center">{disclaimer}</p>
         </div>
       </section>
     </div>
