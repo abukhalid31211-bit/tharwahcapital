@@ -6,6 +6,7 @@ import { WhatsappButton } from "../components/site/WhatsappButton";
 import { BackToTop } from "../components/site/BackToTop";
 import { CookieBanner } from "../components/site/CookieBanner";
 import { ToastProvider } from "../components/site/Toast";
+import { LanguageProvider } from "../contexts/LanguageContext";
 import { Link } from "@tanstack/react-router";
 
 function NotFoundComponent() {
@@ -67,21 +68,23 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <a href="#main-content" className="skip-link">
-          الانتقال إلى المحتوى الرئيسي
-        </a>
-        <div className="min-h-screen bg-background text-foreground">
-          {!isAdminOrDashboard && <SiteHeader />}
-          <main id="main-content" className={!isAdminOrDashboard ? "pt-[72px]" : ""}>
-            <Outlet />
-          </main>
-          {!isAdminOrDashboard && <SiteFooter />}
-          {!isAdminOrDashboard && <WhatsappButton />}
-          <BackToTop />
-          <CookieBanner />
-        </div>
-      </ToastProvider>
+      <LanguageProvider>
+        <ToastProvider>
+          <a href="#main-content" className="skip-link">
+            الانتقال إلى المحتوى الرئيسي
+          </a>
+          <div className="min-h-screen bg-background text-foreground">
+            {!isAdminOrDashboard && <SiteHeader />}
+            <main id="main-content" className={!isAdminOrDashboard ? "pt-[72px]" : ""}>
+              <Outlet />
+            </main>
+            {!isAdminOrDashboard && <SiteFooter />}
+            {!isAdminOrDashboard && <WhatsappButton />}
+            <BackToTop />
+            <CookieBanner />
+          </div>
+        </ToastProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }
