@@ -6,7 +6,7 @@ import { WhatsappButton } from "../components/site/WhatsappButton";
 import { BackToTop } from "../components/site/BackToTop";
 import { CookieBanner } from "../components/site/CookieBanner";
 import { ToastProvider } from "../components/site/Toast";
-import { LanguageProvider } from "../contexts/LanguageContext";
+import { LanguageProvider, LangUrlSync } from "../contexts/LanguageContext";
 import { Link } from "@tanstack/react-router";
 
 function NotFoundComponent() {
@@ -69,6 +69,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
+        {/* Keeps ?lang=xx in the URL on every client-side navigation */}
+        <LangUrlSync pathname={pathname} />
         <ToastProvider>
           <a href="#main-content" className="skip-link">
             الانتقال إلى المحتوى الرئيسي
