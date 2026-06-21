@@ -9,6 +9,7 @@ import {
   Activity, Home, Eye, EyeOff, Copy, Check, Download,
   Info, Star, Landmark
 } from "lucide-react";
+import { getLiveClients, getLiveTransactions } from "../lib/store";
 
 export const Route = createFileRoute("/dashboard")({ component: Dashboard });
 
@@ -244,21 +245,38 @@ function Dashboard() {
   const [supportMsg, setSupportMsg] = useState("");
   const [supportSent, setSupportSent] = useState(false);
   const [notifRead, setNotifRead] = useState(false);
+  const [adminStatus, setAdminStatus] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const stored = localStorage.getItem("tharwah_client_auth");
     if (stored) {
-      try { setClientAuth(JSON.parse(stored)); }
+      try {
+        const auth = JSON.parse(stored);
+        setClientAuth(auth);
+        // Check if admin has overridden this client's status
+        const liveClients = getLiveClients<{ id: number; status: string; name: string }>();
+        if (liveClients.length > 0) {
+          const match = liveClients.find(c => c.id === auth.id);
+          if (match) setAdminStatus(match.status);
+        }
+      }
       catch { navigate({ to: "/login" }); }
     } else {
       navigate({ to: "/login" });
     }
   }, []);
 
+  // Live transactions from admin
+  const adminTransactions = getLiveTransactions<{ id: number; type: string; client: string; asset: string; qty: number; price: number; total: number; status: string; date: string }>();
+
   const profile = clientAuth ? getProfile(clientAuth.id) : getProfile(1);
   const { personal, financial, investments, banking, notes, advisor, portfolioCode, tier, joinedDate } = profile;
   const tierInfo = tierMap[tier] ?? tierMap.standard;
+
+  // Determine effective status
+  const effectiveStatus = adminStatus || 'active';
+  const isFrozen = effectiveStatus === 'frozen' || effectiveStatus === 'suspended' || effectiveStatus === 'inactive';
 
   function copyText(text: string, key: string) {
     navigator.clipboard?.writeText(text).catch(() => {});
@@ -408,6 +426,23 @@ function Dashboard() {
 
         {/* Page content */}
         <main style={{ flex:1, overflowY:"auto", padding:"24px 24px 40px" }}>
+
+          {/* ── Admin Status Banner ── */}
+          {isFrozen && (
+            <div style={{ marginBottom:20, background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.25)", borderRadius:12, padding:"14px 18px", display:"flex", alignItems:"center", gap:12 }}>
+              <AlertCircle size={20} style={{ color:"#EF4444", flexShrink:0 }} />
+              <div>
+                <div style={{ fontWeight:800, fontSize:"0.88rem", color:"#EF4444" }}>
+                  {effectiveStatus === 'frozen' ? '🔒 حسابك مجمّد مؤقتاً' :
+                   effectiveStatus === 'suspended' ? '⛔ حسابك موقوف' : '⚠️ حسابك غير نشط'}
+                </div>
+                <div style={{ fontSize:"0.75rem", color:"#64748B", marginTop:3 }}>
+                  لمزيد من التفاصيل، يرجى التواصل مع المستشار أو فريق الدعم.
+                </div>
+              </div>
+            </div>
+          )}
+
 
           {/* ══ TAB: معلومات العميل ══ */}
           {activeTab === "info" && (
