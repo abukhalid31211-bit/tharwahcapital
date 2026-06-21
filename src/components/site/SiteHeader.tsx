@@ -4,16 +4,7 @@ import {
   Menu, X, LogIn, TrendingUp, Globe, Bitcoin, Building2, Gem, Fuel,
   ChevronDown, Star, Phone, BarChart3, LogOut, User
 } from "lucide-react";
-
-const links = [
-  { to: "/", label: "الرئيسية" },
-  { to: "/about", label: "من نحن" },
-  { to: "/services", label: "خدماتنا", hasMega: true },
-  { to: "/markets", label: "الأسواق" },
-  { to: "/news", label: "الأخبار" },
-  { to: "/faq", label: "الأسئلة الشائعة" },
-  { to: "/contact", label: "تواصل معنا" },
-] as const;
+import { useLang } from "../../contexts/LanguageContext";
 
 const megaServices = [
   { icon: TrendingUp, label: "الأسهم الخليجية", href: "/service/gulf-stocks", cat: "أسواق الأسهم" },
@@ -35,6 +26,18 @@ interface ClientAuth {
 }
 
 export function SiteHeader() {
+  const { t, lang, toggleLang } = useLang();
+
+  const links = [
+    { to: "/", label: t("nav_home") },
+    { to: "/about", label: t("nav_about") },
+    { to: "/services", label: t("nav_services"), hasMega: true },
+    { to: "/markets", label: t("nav_markets") },
+    { to: "/news", label: t("nav_news") },
+    { to: "/faq", label: t("nav_faq") },
+    { to: "/contact", label: t("nav_contact") },
+  ] as const;
+
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -199,7 +202,7 @@ export function SiteHeader() {
                         className="inline-flex items-center gap-2 rounded-lg bg-gradient-gold px-4 py-2 text-sm font-bold text-white shadow-gold hover:-translate-y-0.5 transition-transform"
                       >
                         <Phone className="size-3.5" />
-                        تواصل مع مستشار
+                        {t("contact_advisor")}
                       </Link>
                     </div>
                   </div>
@@ -225,8 +228,16 @@ export function SiteHeader() {
 
         {/* Desktop actions */}
         <div className="hidden lg:flex items-center gap-3">
-          <button className="text-xs font-bold text-text-muted hover:text-gold transition-colors border border-border rounded-lg px-3 py-1.5">
-            🌐 AR | EN
+          {/* Language Toggle */}
+          <button
+            onClick={toggleLang}
+            className="text-xs font-bold text-text-muted hover:text-gold transition-colors border border-border rounded-lg px-3 py-1.5 hover:border-gold/40 flex items-center gap-1.5"
+            title={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+          >
+            <span>{lang === 'ar' ? '🌐' : '🌐'}</span>
+            <span className={`transition-colors ${lang === 'en' ? 'text-gold font-black' : ''}`}>EN</span>
+            <span className="text-text-muted/50">|</span>
+            <span className={`transition-colors ${lang === 'ar' ? 'text-gold font-black' : ''}`}>AR</span>
           </button>
 
           {client ? (
@@ -276,14 +287,14 @@ export function SiteHeader() {
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/80 hover:text-gold hover:bg-gold/5 transition-colors"
                     >
                       <BarChart3 className="size-4 text-gold/70" />
-                      محفظتي الاستثمارية
+                      {t("my_portfolio")}
                     </Link>
                     <Link
                       to="/dashboard"
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/80 hover:text-gold hover:bg-gold/5 transition-colors"
                     >
                       <User className="size-4 text-gold/70" />
-                      ملفي الشخصي
+                      {t("my_profile")}
                     </Link>
                   </div>
 
@@ -293,7 +304,7 @@ export function SiteHeader() {
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-down hover:bg-down/5 transition-colors text-right"
                     >
                       <LogOut className="size-4" />
-                      تسجيل الخروج
+                      {t("logout_btn")}
                     </button>
                   </div>
                 </div>
@@ -306,7 +317,7 @@ export function SiteHeader() {
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-gold px-5 py-2.5 text-sm font-bold text-white shadow-gold transition-transform hover:-translate-y-0.5"
             >
               <LogIn className="size-4" />
-              بوابة العملاء
+              {t("login_btn")}
             </Link>
           )}
         </div>
@@ -314,7 +325,7 @@ export function SiteHeader() {
         {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen((v) => !v)}
-          aria-label="القائمة"
+          aria-label={t("menu")}
           className="lg:hidden grid place-items-center size-10 rounded-xl border border-border bg-navy-mid text-foreground"
         >
           {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -340,14 +351,22 @@ export function SiteHeader() {
               );
             })}
             <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
-              <span className="text-xs font-bold text-text-muted border border-border rounded-lg px-3 py-1.5">🌐 AR | EN</span>
+              {/* Mobile language toggle */}
+              <button
+                onClick={toggleLang}
+                className="flex items-center gap-1.5 text-xs font-bold border border-border rounded-lg px-3 py-1.5 hover:border-gold/40 hover:text-gold transition-colors"
+              >
+                <span className={lang === 'en' ? 'text-gold font-black' : 'text-text-muted'}>EN</span>
+                <span className="text-text-muted/50">|</span>
+                <span className={lang === 'ar' ? 'text-gold font-black' : 'text-text-muted'}>AR</span>
+              </button>
               {client ? (
                 <div className="flex items-center gap-2">
                   <Link
                     to="/dashboard"
                     className="inline-flex items-center gap-2 rounded-xl bg-gold/10 border border-gold/30 px-4 py-2 text-sm font-bold text-gold"
                   >
-                    <BarChart3 className="size-4" /> محفظتي
+                    <BarChart3 className="size-4" /> {t("portfolio_short")}
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -361,7 +380,7 @@ export function SiteHeader() {
                   to="/login"
                   className="inline-flex items-center gap-2 rounded-xl bg-gradient-gold px-5 py-2.5 text-sm font-bold text-white"
                 >
-                  <LogIn className="size-4" /> بوابة العملاء
+                  <LogIn className="size-4" /> {t("login_btn")}
                 </Link>
               )}
             </div>
