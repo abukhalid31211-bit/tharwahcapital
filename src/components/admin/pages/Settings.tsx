@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getSiteName, setSiteName, getSiteNameEn, setSiteNameEn } from '../../../lib/store'
 
 function Toggle({on,onChange}:{on:boolean;onChange:(v:boolean)=>void}) {
   return <div onClick={()=>onChange(!on)} style={{width:40,height:22,borderRadius:22,background: on ? '#0EA5E9' : '#E2E8F0',position:'relative',cursor:'pointer',transition:'background 0.3s',flexShrink:0}}>
@@ -30,8 +31,18 @@ const navItems = [
 export default function Settings() {
   const [activeNav, setActiveNav] = useState('general')
   const [saved, setSaved] = useState(false)
+  const [siteNameAr, setSiteNameArState] = useState(getSiteName)
+  const [siteNameEnState, setSiteNameEnStateLocal] = useState(getSiteNameEn)
+  const [siteNameSaved, setSiteNameSaved] = useState(false)
 
   const save = () => { setSaved(true); setTimeout(()=>setSaved(false),2000) }
+
+  const saveSiteName = () => {
+    setSiteName(siteNameAr.trim() || 'ثروة كابيتال')
+    setSiteNameEn(siteNameEnState.trim() || 'Tharwah Capital')
+    setSiteNameSaved(true)
+    setTimeout(() => setSiteNameSaved(false), 2500)
+  }
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:20}}>
@@ -62,6 +73,46 @@ export default function Settings() {
         <div style={{display:'flex',flexDirection:'column',gap:16}}>
           {activeNav==='general' && (
             <>
+              {/* ── Site Name Section ── */}
+              <div style={{background:'#F8FAFC',border:'2px solid #0EA5E9',borderRadius:14,padding:20}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+                  <div>
+                    <div style={{fontSize:'0.875rem',fontWeight:700,color:'#1E293B'}}>✏️ اسم الموقع</div>
+                    <div style={{fontSize:'0.72rem',color:'#64748B',marginTop:3}}>
+                      يُطبَّق في جميع أقسام الموقع والتطبيق فور الحفظ
+                    </div>
+                  </div>
+                  <button onClick={saveSiteName}
+                    style={{padding:'8px 18px',background: siteNameSaved ? 'rgba(0,217,126,0.15)' : 'linear-gradient(135deg,#0EA5E9,#38BDF8)',border: siteNameSaved ? '1px solid rgba(0,217,126,0.4)' : 'none',borderRadius:8,color: siteNameSaved ? '#00D97E' : '#FFF',fontWeight:700,cursor:'pointer',fontFamily:"'Cairo',sans-serif",fontSize:'0.82rem',transition:'all 0.2s',flexShrink:0}}>
+                    {siteNameSaved ? '✓ تم الحفظ' : 'حفظ الاسم'}
+                  </button>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+                  <div>
+                    <div style={{fontSize:'0.72rem',color:'#64748B',fontWeight:600,marginBottom:6}}>الاسم بالعربية</div>
+                    <input
+                      value={siteNameAr}
+                      onChange={e => setSiteNameArState(e.target.value)}
+                      placeholder="ثروة كابيتال"
+                      style={{width:'100%',padding:'10px 12px',background:'#FFFFFF',border:'1px solid #0EA5E9',borderRadius:8,color:'#1E293B',fontSize:'0.9rem',fontFamily:"'Cairo',sans-serif",fontWeight:700,boxSizing:'border-box',outline:'none'}}
+                    />
+                  </div>
+                  <div>
+                    <div style={{fontSize:'0.72rem',color:'#64748B',fontWeight:600,marginBottom:6}}>Site Name (English)</div>
+                    <input
+                      value={siteNameEnState}
+                      onChange={e => setSiteNameEnStateLocal(e.target.value)}
+                      placeholder="Tharwah Capital"
+                      dir="ltr"
+                      style={{width:'100%',padding:'10px 12px',background:'#FFFFFF',border:'1px solid #0EA5E9',borderRadius:8,color:'#1E293B',fontSize:'0.9rem',fontFamily:"'Cairo',sans-serif",fontWeight:700,boxSizing:'border-box',outline:'none'}}
+                    />
+                  </div>
+                </div>
+                <div style={{marginTop:12,padding:'10px 14px',background:'rgba(14,165,233,0.06)',border:'1px solid rgba(14,165,233,0.2)',borderRadius:8,fontSize:'0.72rem',color:'#0EA5E9',lineHeight:1.7}}>
+                  الاسم الحالي: <strong>{getSiteName()}</strong> / <strong>{getSiteNameEn()}</strong> — يتغير في: الهيدر، الفوتر، لوحة التحكم، لوحة العميل، صفحة الدخول للإدارة.
+                </div>
+              </div>
+
               <div style={{background:'#F8FAFC',border:'1px solid #E2E8F0',borderRadius:14,padding:20}}>
                 <div style={{fontSize:'0.875rem',fontWeight:700,color:'#1E293B',marginBottom:16}}>🏢 معلومات المنصة</div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>

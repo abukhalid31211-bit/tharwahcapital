@@ -68,29 +68,40 @@ function VisibilityToggle({ visible, onChange }: { visible: boolean; onChange: (
 }
 
 // ═══════════════════════════════════════════════════════════════
-// COMPONENT — HybridSelect (قائمة + إدخال حر)
+// COMPONENT — HybridSelect (قائمة + إدخال حر عند الطلب)
 // ═══════════════════════════════════════════════════════════════
-function HybridSelect({ options, value, onChange, placeholder = 'أو اكتب قيمة مخصصة...' }: {
+function HybridSelect({ options, value, onChange, placeholder = 'اكتب قيمة مخصصة...' }: {
   options: string[]; value: string; onChange: (v: string) => void; placeholder?: string
 }) {
-  const isCustom = value !== '' && !options.includes(value)
+  const isAlreadyCustom = value !== '' && !options.includes(value)
+  const [showInput, setShowInput] = useState(isAlreadyCustom)
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
       <select
-        value={isCustom ? '__custom__' : value}
-        onChange={e => { if (e.target.value !== '__custom__') onChange(e.target.value) }}
+        value={showInput ? '__custom__' : value}
+        onChange={e => {
+          if (e.target.value === '__custom__') {
+            setShowInput(true)
+          } else {
+            setShowInput(false)
+            onChange(e.target.value)
+          }
+        }}
         style={{ ...C.input, cursor:'pointer' }}
       >
         <option value="">اختر...</option>
         {options.map(o => <option key={o} value={o}>{o}</option>)}
-        <option value="__custom__">✏️ قيمة مخصصة</option>
+        <option value="__custom__">قيمة مخصصة...</option>
       </select>
-      <input
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        style={{ ...C.input, fontSize:'0.78rem', color:'#64748B', borderStyle: isCustom ? 'solid' : 'dashed', borderColor: isCustom ? '#0EA5E9' : '#CBD5E1' }}
-      />
+      {showInput && (
+        <input
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoFocus
+          style={{ ...C.input, fontSize:'0.82rem', color:'#0369A1', borderColor:'#0EA5E9', borderWidth:2 }}
+        />
+      )}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { getLang, setLang } from '../lib/store'
+import { getLang, setLang, getSiteName, getSiteNameEn, SITE_NAME_CHANGED } from '../lib/store'
 
 const ar = {
   /* ── Navigation ── */
@@ -440,6 +440,8 @@ const LangContext = createContext<LangCtx>({
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<'ar' | 'en'>(getInitialLang)
+  const [siteName, setSiteNameState] = useState(getSiteName)
+  const [siteNameEn, setSiteNameEnState] = useState(getSiteNameEn)
 
   useEffect(() => {
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
@@ -447,14 +449,27 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.setAttribute('data-lang', lang)
   }, [lang])
 
+  useEffect(() => {
+    const handler = () => {
+      setSiteNameState(getSiteName())
+      setSiteNameEnState(getSiteNameEn())
+    }
+    window.addEventListener(SITE_NAME_CHANGED, handler)
+    return () => window.removeEventListener(SITE_NAME_CHANGED, handler)
+  }, [])
+
   const toggleLang = () => {
     const next: 'ar' | 'en' = lang === 'ar' ? 'en' : 'ar'
     setLangState(next)
-    setLang(next)          // persist to localStorage
-    patchUrlLang(next)     // reflect in URL immediately
+    setLang(next)
+    patchUrlLang(next)
   }
 
-  const t = (key: TranslationKey): string => translations[lang][key] ?? translations.ar[key]
+  const t = (key: TranslationKey): string => {
+    if (key === 'brand_name') return lang === 'ar' ? siteName : siteNameEn
+    if (key === 'brand_sub')  return lang === 'ar' ? siteNameEn : siteName
+    return translations[lang][key] ?? translations.ar[key]
+  }
 
   return (
     <LangContext.Provider value={{ lang, t, toggleLang }}>

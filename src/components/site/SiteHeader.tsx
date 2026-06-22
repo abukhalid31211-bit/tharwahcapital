@@ -109,8 +109,8 @@ export function SiteHeader() {
             <span className="font-black text-white text-lg">ر</span>
           </div>
           <div className="leading-tight">
-            <div className="font-black text-foreground text-base">ثروة كابيتال</div>
-            <div className="text-[10px] tracking-widest text-gold uppercase">Tharwah Capital</div>
+            <div className="font-black text-foreground text-base">{t('brand_name')}</div>
+            <div className="text-[10px] tracking-widest text-gold uppercase">{t('brand_sub')}</div>
           </div>
         </Link>
 
