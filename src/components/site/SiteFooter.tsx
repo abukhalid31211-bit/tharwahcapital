@@ -102,8 +102,8 @@ export function SiteFooter() {
                 <span className="font-black text-white text-lg">ر</span>
               </div>
               <div className="leading-tight">
-                <div className="font-black text-foreground">الثروة كابيتال كابيتال</div>
-                <div className="text-[10px] tracking-widest text-gold uppercase">Rasekhoon Capital</div>
+                <div className="font-black text-foreground">{t('brand_name')}</div>
+                <div className="text-[10px] tracking-widest text-gold uppercase">{t('brand_sub')}</div>
               </div>
             </div>
             <p className="mt-5 text-sm leading-relaxed text-text-muted">

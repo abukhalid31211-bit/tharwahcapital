@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Eye, EyeOff, Shield, Lock, Mail, AlertTriangle } from 'lucide-react'
 import { ADMIN_CREDENTIALS } from './adminData'
 import { getSubAdmins } from './pages/SubAdmins'
+import { getSiteName } from '../../lib/store'
 
 interface Props {
   onLogin: (role: 'super' | 'sub') => void
@@ -111,7 +112,7 @@ export default function AdminLogin({ onLogin }: Props) {
             🔰
           </div>
           <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1E293B', marginBottom: 4 }}>لوحة تحكم المشرفين</div>
-          <div style={{ fontSize: '0.75rem', color: '#64748B', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Admin Control Panel — الثروة كابيتال</div>
+          <div style={{ fontSize: '0.75rem', color: '#64748B', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Admin Control Panel — {getSiteName()}</div>
         </div>
 
         <form onSubmit={handleSubmit}>

@@ -6,7 +6,27 @@ export const KEYS = {
   portfoliosOverride: 'tharwah_live_portfolios',
   clientAuth: 'tharwah_client_auth',
   adminAnnouncements: 'tharwah_admin_announcements',
+  siteName: 'tharwah_site_name',
+  siteNameEn: 'tharwah_site_name_en',
 }
+
+const SITE_NAME_CHANGED = 'tharwah_site_name_changed'
+
+export function getSiteName(): string {
+  return localStorage.getItem(KEYS.siteName) || 'ثروة كابيتال'
+}
+export function setSiteName(name: string) {
+  localStorage.setItem(KEYS.siteName, name)
+  window.dispatchEvent(new Event(SITE_NAME_CHANGED))
+}
+export function getSiteNameEn(): string {
+  return localStorage.getItem(KEYS.siteNameEn) || 'Tharwah Capital'
+}
+export function setSiteNameEn(name: string) {
+  localStorage.setItem(KEYS.siteNameEn, name)
+  window.dispatchEvent(new Event(SITE_NAME_CHANGED))
+}
+export { SITE_NAME_CHANGED }
 
 export function getLang(): 'ar' | 'en' {
   return (localStorage.getItem(KEYS.lang) as 'ar' | 'en') || 'ar'

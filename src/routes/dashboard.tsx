@@ -9,7 +9,7 @@ import {
   Activity, Home, Eye, EyeOff, Copy, Check, Download,
   Info, Star, Landmark
 } from "lucide-react";
-import { getLiveClients, getLiveTransactions } from "../lib/store";
+import { getLiveClients, getLiveTransactions, getSiteName } from "../lib/store";
 
 export const Route = createFileRoute("/dashboard")({ component: Dashboard });
 
@@ -330,7 +330,7 @@ function Dashboard() {
             <span style={{ color:"#fff", fontWeight:900, fontSize:"1rem" }}>ث</span>
           </div>
           <div>
-            <div style={{ fontWeight:900, fontSize:"0.82rem", color:"#1E293B" }}>ثروة كابيتال</div>
+            <div style={{ fontWeight:900, fontSize:"0.82rem", color:"#1E293B" }}>{getSiteName()}</div>
             <div style={{ fontSize:"0.65rem", color:"#D4AF37", fontWeight:700 }}>بوابة العملاء</div>
           </div>
           <button onClick={() => setSideOpen(false)} style={{ marginRight:"auto", background:"none", border:"none", cursor:"pointer", color:"#94A3B8" }} className="lg:hidden">
@@ -399,7 +399,7 @@ function Dashboard() {
         />
       )}
 
-      {/* ── Main ──────────────────────────────────── */}
+      {/* ── Main ─────��────────────────────────────── */}
       <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0, marginRight:0 }} className="lg:mr-[260px]">
         {/* Top bar */}
         <header style={{ background:"#FFFFFF", borderBottom:"1px solid #E2E8F0", padding:"14px 24px", display:"flex", alignItems:"center", gap:12, position:"sticky", top:0, zIndex:30 }}>
