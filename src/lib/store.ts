@@ -8,6 +8,7 @@ export const KEYS = {
   adminAnnouncements: 'tharwah_admin_announcements',
   siteName: 'tharwah_site_name',
   siteNameEn: 'tharwah_site_name_en',
+  contactMessages: 'tharwah_contact_messages',
 }
 
 const SITE_NAME_CHANGED = 'tharwah_site_name_changed'
@@ -82,4 +83,51 @@ export function addAnnouncement(text: string, clientId?: number) {
   const current = getAnnouncements()
   const entry = { id: Date.now(), text, date: new Date().toLocaleDateString('ar-SA'), clientId }
   localStorage.setItem(KEYS.adminAnnouncements, JSON.stringify([entry, ...current].slice(0, 50)))
+}
+
+// ==================== Contact Messages ====================
+
+export interface ContactMessage {
+  id: number
+  name: string
+  email: string
+  phone: string
+  service: string
+  message: string
+  date: string
+  status: 'new' | 'read' | 'replied'
+  source: 'contact' | 'support'
+}
+
+export function getContactMessages(): ContactMessage[] {
+  try {
+    const raw = localStorage.getItem(KEYS.contactMessages)
+    return raw ? JSON.parse(raw) : []
+  } catch { return [] }
+}
+
+export function addContactMessage(msg: Omit<ContactMessage, 'id' | 'date' | 'status'>) {
+  const current = getContactMessages()
+  const entry: ContactMessage = {
+    ...msg,
+    id: Date.now(),
+    date: new Date().toLocaleString('ar-SA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+    status: 'new',
+  }
+  localStorage.setItem(KEYS.contactMessages, JSON.stringify([entry, ...current].slice(0, 200)))
+  window.dispatchEvent(new Event('tharwah_contact_messages_changed'))
+}
+
+export function updateContactMessageStatus(id: number, status: ContactMessage['status']) {
+  const msgs = getContactMessages()
+  const updated = msgs.map(m => m.id === id ? { ...m, status } : m)
+  localStorage.setItem(KEYS.contactMessages, JSON.stringify(updated))
+  window.dispatchEvent(new Event('tharwah_contact_messages_changed'))
+}
+
+export function deleteContactMessage(id: number) {
+  const msgs = getContactMessages()
+  const updated = msgs.filter(m => m.id !== id)
+  localStorage.setItem(KEYS.contactMessages, JSON.stringify(updated))
+  window.dispatchEvent(new Event('tharwah_contact_messages_changed'))
 }
