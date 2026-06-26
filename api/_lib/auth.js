@@ -1,30 +1,28 @@
 import jwt from 'jsonwebtoken'
-import logger from './logger.js'
 
-const JWT_SECRET = process.env.JWT_SECRET
+// Support both JWT_SECRET and SUPABASE_JWT_SECRET (Vercel Supabase integration uses the latter)
+const getSecret = () => process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET || null
+
 const JWT_EXPIRES = '8h'
 
-// Validate JWT_SECRET on module load
-if (!JWT_SECRET) {
-  logger.error('JWT_SECRET not configured', new Error('Missing JWT_SECRET'))
-  throw new Error('JWT_SECRET environment variable is required for authentication')
-}
-
 export function signToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES })
+  const secret = getSecret()
+  if (!secret) throw new Error('JWT secret not configured')
+  return jwt.sign(payload, secret, { expiresIn: JWT_EXPIRES })
 }
 
 export function verifyToken(token) {
+  const secret = getSecret()
+  if (!secret) return null
   try {
-    return jwt.verify(token, JWT_SECRET)
+    return jwt.verify(token, secret)
   } catch (err) {
-    logger.debug('Token verification failed', { error: err.message })
     return null
   }
 }
 
 export function extractToken(req) {
-  const auth = req.headers.authorization || ''
+  const auth = req.headers['authorization'] || ''
   if (auth.startsWith('Bearer ')) return auth.slice(7)
   return null
 }
