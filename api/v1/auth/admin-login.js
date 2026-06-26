@@ -5,10 +5,9 @@ import bcrypt from 'bcryptjs'
 
 async function checkPassword(plain, hash) {
   if (!hash) return false
-  // pgcrypto generates $2a$ prefix; bcryptjs handles both $2a$ and $2b$
-  // but to be safe, normalize $2a$ → $2b$
-  const normalizedHash = hash.replace(/^\$2a\$/, '$2b$')
-  return bcrypt.compare(plain, normalizedHash)
+  // pgcrypto crypt() generates $2a$ prefix; normalize to $2b$ for bcryptjs
+  const h = hash.replace(/^\$2a\$/, '$2b$')
+  return bcrypt.compare(plain, h)
 }
 
 export default async function handler(req, res) {
@@ -19,7 +18,6 @@ export default async function handler(req, res) {
   if (!email || !password) return res.status(400).json({ error: 'البريد الإلكتروني وكلمة المرور مطلوبان' })
 
   try {
-    // Check admins table
     const { data: admin, error: adminErr } = await supabase
       .from('admins')
       .select('id, name, email, password_hash, role, status')
@@ -33,7 +31,6 @@ export default async function handler(req, res) {
       const valid = await checkPassword(password, admin.password_hash)
       if (!valid) return res.status(401).json({ error: 'كلمة المرور غير صحيحة' })
 
-      // Log login (non-blocking)
       supabase.from('audit_logs').insert({
         actor_id: admin.id, actor_type: 'admin', actor_email: admin.email,
         action: 'admin_login', details: { ip: req.headers['x-forwarded-for'] || 'unknown' },
@@ -43,7 +40,6 @@ export default async function handler(req, res) {
       return res.json({ token, admin: { id: admin.id, name: admin.name, email: admin.email, role: admin.role } })
     }
 
-    // Check sub_admins table
     const { data: sub, error: subErr } = await supabase
       .from('sub_admins')
       .select('id, name, email, password_hash, status')
