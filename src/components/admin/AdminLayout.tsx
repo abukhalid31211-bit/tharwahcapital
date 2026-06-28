@@ -115,6 +115,7 @@ export default function AdminLayout({ onLogout, role }: Props) {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [search, setSearch] = useState('')
   const [contactNewCount, setContactNewCount] = useState(() => getContactMessages().filter(m => m.status === 'new').length)
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null)
   const unread = mockNotifications.filter(n=>!n.read).length
 
   useEffect(() => {
@@ -198,6 +199,8 @@ export default function AdminLayout({ onLogout, role }: Props) {
     const target = key as Page
     if (!isSuper && !subAllowed.includes(target)) return
     setPage(target)
+    setShowNotif(false)
+    setShowUserMenu(false)
   }
 
   return (
@@ -273,8 +276,8 @@ export default function AdminLayout({ onLogout, role }: Props) {
                       textAlign:'right', justifyContent: collapsed ? 'center' : 'flex-start',
                       position:'relative',
                     }}
-                    onMouseEnter={e=>{if(!isActive){e.currentTarget.style.color='#0EA5E9';e.currentTarget.style.background='rgba(14,165,233,0.05)'}}}
-                    onMouseLeave={e=>{if(!isActive){e.currentTarget.style.color=isSpecial?'#C9A84C':'#475569';e.currentTarget.style.background=isSpecial?'rgba(201,168,76,0.05)':'transparent'}}}>
+                    onMouseEnter={() => setHoveredKey(item.key)}
+                    onMouseLeave={() => setHoveredKey(null)}>
                     <Icon size={16} style={{ flexShrink:0 }} />
                     {!collapsed && <>
                       <span style={{ flex:1, whiteSpace:'nowrap' }}>{item.label}</span>
