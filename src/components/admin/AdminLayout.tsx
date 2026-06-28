@@ -22,6 +22,7 @@ import SubAdmins from './pages/SubAdmins'
 import PrivacyPolicyManager from './pages/PrivacyPolicyManager'
 import { mockNotifications } from './adminData'
 import { getContactMessages } from '../../lib/store'
+import { verifyAdminSession } from '../../lib/api'
 
 type Page = 'overview'|'clients'|'portfolios'|'transactions'|'messages'|'content'|'reports'|'team'|'notifications'|'settings'|'security'|'hero'|'services_mgr'|'markets_mgr'|'faq_mgr'|'testimonials'|'site_design'|'about_mgr'|'sub_admins'|'privacy_policy'
 
@@ -126,6 +127,44 @@ export default function AdminLayout({ onLogout, role }: Props) {
     ? 'أحمد المشرف'
     : (localStorage.getItem('admin_name') || 'مشرف')
   const adminEmail = localStorage.getItem('admin_email') || ''
+
+
+  // ── Auto-logout for deleted sub-admins ─────────────────────────────────
+  useEffect(() => {
+    if (isSuper) return // only for sub-admins
+
+    function getOwnId(): string | null {
+      try {
+        const tok = localStorage.getItem('admin_token')
+        if (!tok) return null
+        return JSON.parse(atob(tok.split('.')[1])).id || null
+      } catch { return null }
+    }
+    const ownId = getOwnId()
+    if (!ownId) return
+
+    // same-device: listen for localStorage changes (super admin deletes from another tab)
+    const onStorage = () => {
+      try {
+        const deleted: string[] = JSON.parse(localStorage.getItem('tharwah_force_logout') || '[]')
+        if (deleted.includes(ownId)) onLogout()
+      } catch {}
+    }
+    window.addEventListener('storage', onStorage)
+
+    // poll verify endpoint every 30 seconds
+    const verify = () => {
+      verifyAdminSession().catch(() => onLogout())
+    }
+    const timer = setInterval(verify, 30000)
+
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      clearInterval(timer)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuper, onLogout])
+  // ────────────────────────────────────────────────────────────────────────
 
   const safePage: Page = (!isSuper && !subAllowed.includes(page)) ? (subAllowed[0] as Page || 'clients') : page
 
