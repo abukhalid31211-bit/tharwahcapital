@@ -141,12 +141,12 @@ import { createClient } from '@supabase/supabase-js'
         return res.json({ clients: data, total: count })
       }
       if (req.method === 'POST') {
-        const { name, email, phone, password, risk_profile, notes, membership_level, portfolio_code, initial_investment } = req.body || {}
+        const { name, email, phone, password, status, risk_profile, notes, membership_level, portfolio_code, initial_investment } = req.body || {}
         if (!name || !email || !password) return res.status(400).json({ error: 'الاسم والبريد والكلمة مطلوبة' })
         const { data: existing } = await supabase.from('clients').select('id').eq('email', email.toLowerCase()).single()
         if (existing) return res.status(409).json({ error: 'البريد الإلكتروني مستخدم' })
         const hash = await bcrypt.hash(password, 10)
-        const { data, error } = await supabase.from('clients').insert({ name, email: email.toLowerCase(), phone, password_hash: hash, account_number: 'TH' + Date.now().toString().slice(-8), risk_profile: risk_profile || 'moderate', notes, membership_level: membership_level || 'عادي', portfolio_code, initial_investment }).select(CLIENT_FIELDS).single()
+        const { data, error } = await supabase.from('clients').insert({ name, email: email.toLowerCase(), phone, password_hash: hash, status: status || 'pending', account_number: 'TH' + Date.now().toString().slice(-8), risk_profile: risk_profile || 'moderate', notes, membership_level: membership_level || 'عادي', portfolio_code, initial_investment }).select(CLIENT_FIELDS).single()
         if (error) return res.status(500).json({ error: error.message })
         return res.status(201).json({ client: data })
       }
